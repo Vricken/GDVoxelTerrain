@@ -37,6 +37,11 @@ class JarSphereSdf : public JarSignedDistanceField
         return glm::length(pos - _center) - _radius;
     }
 
+    virtual glm::vec3 normal(const glm::vec3 &pos) const override
+    {
+        return glm::normalize(pos - _center);
+    }
+
   protected:
     static void _bind_methods()
     {

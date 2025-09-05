@@ -42,6 +42,11 @@ class JarPlaneSdf : public JarSignedDistanceField
         return glm::dot(_normal, pos) + _d;
     }
 
+    virtual glm::vec3 normal(const glm::vec3 &pos) const override
+    {
+        return _normal;
+    }
+
   protected:
     static void _bind_methods()
     {

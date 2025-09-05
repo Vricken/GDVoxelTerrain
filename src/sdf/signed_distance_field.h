@@ -34,7 +34,7 @@ class JarSignedDistanceField : public Resource
         return std::nullopt;
     }
 
-    inline glm::vec3 normal(const glm::vec3 &pos) const
+    virtual inline glm::vec3 normal(const glm::vec3 &pos) const
     {
         const static float delta = 0.001f;
         const static glm::vec3 xyy(delta, -delta, -delta);

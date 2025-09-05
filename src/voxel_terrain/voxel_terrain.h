@@ -65,13 +65,17 @@ class JarVoxelTerrain : public Node3D
 
     // LOD
     JarVoxelLoD _voxelLod;
-    int lod_level_count = 20;
-    int lod_shell_size = 2;
-    bool lod_automatic_update = true;
-    float lod_automatic_update_distance = 64.0f;
+    int _lod_level_count = 20;
+    int _lod_shell_size = 2;
+    bool _lod_automatic_update = true;
+    float _lod_automatic_update_distance = 64.0f;
 
     // POPULATION
     TypedArray<JarTerrainDetail> _terrainDetails;
+
+    // TERRAIN DESTRUCTION
+    // bool _separate_loose_chunks = true;
+    // int _max_rigidybody_volume;
 
     void build();
     void _notification(int what);

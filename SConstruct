@@ -37,13 +37,14 @@ if env["target"] != "template_release":
 	except AttributeError:
 		print("Not including class reference as we're targeting a pre-4.3 baseline.")
 
-#compiler flags
-if env['PLATFORM'] == 'windows':
-    if env['CXX'] == 'x86_64-w64-mingw32-g++':
-        env.Append(CXXFLAGS=['-std=c++11'])  # Example flags for MinGW
-    elif env['CXX'] == 'cl':
-        env.Append(CXXFLAGS=['/EHsc'])  # Apply /EHsc for MSVC
+# #compiler flags
+# if env['PLATFORM'] == 'windows':
+#     if env['CXX'] == 'x86_64-w64-mingw32-g++':
+#         env.Append(CXXFLAGS=['-std=c++11'])  # Example flags for MinGW
+#     elif env['CXX'] == 'cl':
+#         env.Append(CXXFLAGS=['/EHsc'])  # Apply /EHsc for MSVC
 
+env.Append(CXXFLAGS=['/std:c++17'])
 
 # Handle different platforms
 if env["platform"] == "macos":

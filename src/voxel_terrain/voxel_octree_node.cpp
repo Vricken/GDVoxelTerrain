@@ -15,8 +15,8 @@ VoxelOctreeNode::VoxelOctreeNode(VoxelOctreeNode *parent, const glm::vec3 center
     {
         LoD = _parent->LoD;
         _value = _parent->get_value();
-        _isSet = _parent->_isSet;
-        NodeColor = _parent->NodeColor;
+        _isGenerated = _parent->_isGenerated;
+        _nodeColor = _parent->_nodeColor;
     }
 }
 
@@ -39,41 +39,62 @@ void VoxelOctreeNode::set_dirty(bool value)
     _isDirty = value;
 }
 
-// todo, make threadsafe. It's currently maybe fine (due to the way the scheduler is set up), but better safe than
-// sorry.
-float VoxelOctreeNode::get_value()
+// todo, make threadsafe. It's currently maybe fine (due to the way the scheduler is set up), but better safe than sorry.
+void VoxelOctreeNode::update_if_dirty()
 {
     if (!is_dirty())
-        return _value;
+        return;
+
     if (!is_leaf())
     {
-        _value = 0;
-        NodeColor = glm::vec4(0, 0, 0, 0);
+        _value = 0.0f;
+        _nodeColor = glm::vec4(0.0f);
+        _normal = glm::vec3(0.0f);
+
         for (auto &child : (*_children))
         {
-            _value += child->get_value();
-            NodeColor += child->NodeColor;
+            _value     += child->get_value();
+            _nodeColor += child->get_color();
+            _normal    += child->get_normal();
         }
-        _value *= 0.125f;
-        NodeColor *= 0.125f;
+
+        // Average over 8 children
+        _value     *= 0.125f;
+        _nodeColor *= 0.125f;
+        _normal    = glm::normalize(_normal * 0.125f);
     }
+
     _isDirty = false;
+}
+
+float VoxelOctreeNode::get_value()
+{
+    update_if_dirty();
     return _value;
 }
+
+glm::vec4 VoxelOctreeNode::get_color()
+{
+    update_if_dirty();
+    return _nodeColor;
+}
+
+glm::vec3 VoxelOctreeNode::get_normal()
+{
+    update_if_dirty();
+    return _normal;
+}
+
 
 int VoxelOctreeNode::get_lod() const
 {
     return LoD;
 }
 
-glm::vec4 VoxelOctreeNode::get_color() const
-{
-    return NodeColor;
-}
-
-void VoxelOctreeNode::set_value(float value)
+void VoxelOctreeNode::set_value(float value, glm::vec3 normal)
 {
     _value = value;
+    _normal = normal;
     _isDirty = false;
     if (_parent != nullptr)
     {
@@ -214,19 +235,20 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
     if (LoD < 0)
         return;
 
-    if (!_isSet)
+    if (!_isGenerated)
     {
         float value = terrain.get_sdf()->distance(_center);
-        set_value(value);
+        glm::vec3 normal = terrain.get_sdf()->normal(_center);
+        set_value(value, normal);
         if (has_surface(terrain, value) && (_size > LoD))
         {
             subdivide(terrain.get_octree_scale());
-            _isSet = true;
+            _isGenerated = true;
         }
         // if we don't subdivide further, we mark it as a fully realized subtree
         if (is_leaf() && (_size > LoD || _size == min_size()))
         { //
-            _isSet = true;
+            _isGenerated = true;
             mark_materialized();
             return;
         }
@@ -264,12 +286,16 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
         return;
 
     LoD = terrain.desired_lod(*this);
-    if (!_isSet)
-        set_value(terrain.get_sdf()->distance(_center));
+    if (!_isGenerated)
+        set_value(terrain.get_sdf()->distance(_center), terrain.get_sdf()->normal(_center));
 
     float old_value = get_value();
+    glm::vec3 old_normal = get_normal();
     float sdf_value = settings.sdf->distance(_center - settings.position);
-    float new_value = SDF::apply_operation(settings.operation, old_value, sdf_value, terrain.get_octree_scale());
+    glm::vec3 sdf_normal = settings.sdf->normal(_center - settings.position);
+
+    float new_value; glm::vec3 new_normal; 
+    SDF::apply_operation(settings.operation, old_value, old_normal, sdf_value, sdf_normal, terrain.get_octree_scale(), new_value, new_normal);
 
     // ensure the node has children if it contains a surface
     if (has_surface(terrain, new_value)) // || has_surface(terrain, sdf_value)
@@ -278,10 +304,10 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
         if(settings.bounds.encloses(bounds))
             prune_children();
 
-    set_value(new_value);
-    _isSet = true;
+    set_value(new_value, new_normal);
+    _isGenerated = true;
     if (std::abs(new_value - old_value) > 0.01f)
-        NodeColor = glm::vec4(1, 0, 0, 1);
+        _nodeColor = glm::vec4(1, 0, 0, 1);
 
     if (is_leaf())
         mark_materialized();

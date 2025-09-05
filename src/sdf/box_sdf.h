@@ -38,6 +38,16 @@ class JarBoxSdf : public JarSignedDistanceField
         return glm::length(glm::max(q, 0.0f)) + glm::min(glm::max(q.x, glm::max(q.y, q.z)), 0.0f);
     }
 
+    virtual glm::vec3 normal(const glm::vec3 &pos) const override
+    {
+        glm::vec3 p = pos - _center;
+        glm::vec3 q = glm::abs(p) - _extent;
+
+        if (q.x > q.y && q.x > q.z) return glm::vec3((p.x > 0) ? 1 : -1, 0, 0);
+        if (q.y > q.z)              return glm::vec3(0, (p.y > 0) ? 1 : -1, 0);
+        return glm::vec3(0, 0, (p.z > 0) ? 1 : -1);
+    }
+
   protected:
     static void _bind_methods()
     {

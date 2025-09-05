@@ -29,7 +29,6 @@ void MeshComputeScheduler::process(JarVoxelTerrain &terrain)
         if (ChunksToProcess.try_pop(tuple))
         {
             auto [node, chunkMeshData] = tuple;
-            // if(!node->is_chunk(terrain)) return;
             node->update_chunk(terrain, chunkMeshData);
         }
     }

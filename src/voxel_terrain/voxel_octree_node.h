@@ -17,20 +17,21 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
 {
   private:
     float _value = 0;
-    glm::vec4 NodeColor{0, 0, 0, 0};
-
-    bool _isSet = false;
-    bool _isDirty = false;
-    bool _isEnqueued = false;
+    int LoD = 0;
+    bool _isModified = false; // if true, modified, so should not be deleted.
+    bool _isGenerated = false; // if true, already generated from SDF.
+    bool _isDirty = false; // if true, needs to recalculate value from children
+    bool _isEnqueued = false; // if true, is enqueued for meshing
     uint8_t _isMaterialized;
 
-    JarVoxelChunk *_chunk = nullptr;
+    JarVoxelChunk *_chunk = nullptr;   
 
-    int LoD = 0;
+    glm::vec4 _nodeColor{0, 0, 0, 0}; // for material
+    glm::vec3 _normal{0, 0, 0};
 
     bool is_dirty() const;
     void set_dirty(bool value);
-    void set_value(float value);
+    void set_value(float value, glm::vec3 normal);
 
     // idea to not explore the whole tree, but only the children that are not materialized
     void mark_materialized();
@@ -40,6 +41,8 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
     void populateUniqueLoDValues(std::vector<int> &lodValues) const;
 
     inline bool should_delete_chunk(const JarVoxelTerrain &terrain) const;
+
+    void update_if_dirty();
 
   public:
     VoxelOctreeNode(int size);
@@ -76,8 +79,9 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
                                                      std::vector<VoxelOctreeNode *> &result);
 
     float get_value();
+    glm::vec3 get_normal();
     int get_lod() const;
-    glm::vec4 get_color() const;
+    glm::vec4 get_color();
 
     // private:
 

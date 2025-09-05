@@ -259,42 +259,42 @@ void JarVoxelTerrain::set_updated_colliders_per_second(int value)
 
 int JarVoxelTerrain::get_lod_level_count() const
 {
-    return lod_level_count;
+    return _lod_level_count;
 }
 
 void JarVoxelTerrain::set_lod_level_count(int value)
 {
-    lod_level_count = value;
+    _lod_level_count = value;
 }
 
 int JarVoxelTerrain::get_lod_shell_size() const
 {
-    return lod_shell_size;
+    return _lod_shell_size;
 }
 
 void JarVoxelTerrain::set_lod_shell_size(int value)
 {
-    lod_shell_size = value;
+    _lod_shell_size = value;
 }
 
 bool JarVoxelTerrain::get_lod_automatic_update() const
 {
-    return lod_automatic_update;
+    return _lod_automatic_update;
 }
 
 void JarVoxelTerrain::set_lod_automatic_update(bool value)
 {
-    lod_automatic_update = value;
+    _lod_automatic_update = value;
 }
 
 float JarVoxelTerrain::get_lod_automatic_update_distance() const
 {
-    return lod_automatic_update_distance;
+    return _lod_automatic_update_distance;
 }
 
 void JarVoxelTerrain::set_lod_automatic_update_distance(float value)
 {
-    lod_automatic_update_distance = value;
+    _lod_automatic_update_distance = value;
 }
 
 void JarVoxelTerrain::_notification(int p_what)
@@ -338,7 +338,7 @@ void JarVoxelTerrain::initialize()
     }
     _chunkSize = (1 << _minChunkSize);
     _voxelLod =
-        JarVoxelLoD(lod_automatic_update, lod_automatic_update_distance, lod_level_count, lod_shell_size, _octreeScale);
+        JarVoxelLoD(_lod_automatic_update, _lod_automatic_update_distance, _lod_level_count, _lod_shell_size, _octreeScale);
     _meshComputeScheduler = std::make_unique<MeshComputeScheduler>(_maxConcurrentTasks);
     _voxelRoot = std::make_unique<VoxelOctreeNode>(_size);
     //_populationRoot = memnew(PopulationOctreeNode(_size));
@@ -348,6 +348,8 @@ void JarVoxelTerrain::initialize()
 void JarVoxelTerrain::process()
 {
     float delta = get_process_delta_time();
+    if (!_meshComputeScheduler) return;
+
     if (!_isBuilding && !_meshComputeScheduler->is_meshing() && _voxelLod.process(*this, false))
         build();
     _meshComputeScheduler->process(*this);

@@ -3,13 +3,12 @@
 
 #include "voxel_octree_node.h"
 #include <atomic>
-#include <concurrent_queue.h>
-#include <concurrent_priority_queue.h>
 #include <functional>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 #include <thread>
 #include "utility/thread_pool.h"
+#include "utility/concurrent_priority_queue.h"
 
 using namespace godot;
 
@@ -21,12 +20,17 @@ struct ChunkComparator {
         return a->get_lod() > b->get_lod();
     }
 };
+// struct ChunkComparator2 {
+//     bool operator()(const std::pair<VoxelOctreeNode*, ChunkMeshData*> a, const std::pair<VoxelOctreeNode*, ChunkMeshData*> b) const {
+//         return a.first->get_lod() > b.first->get_lod();
+//     }
+// };
 
 class MeshComputeScheduler
 {
   private:
-    concurrency::concurrent_priority_queue<VoxelOctreeNode*, ChunkComparator> ChunksToAdd;
-    concurrency::concurrent_queue<std::pair<VoxelOctreeNode*, ChunkMeshData*>> ChunksToProcess;
+    ConcurrentPriorityQueue<VoxelOctreeNode*, ChunkComparator> ChunksToAdd;
+    ConcurrentPriorityQueue<std::pair<VoxelOctreeNode*, ChunkMeshData*>> ChunksToProcess;
 
     std::atomic<int> _activeTasks;
     int _maxConcurrentTasks;

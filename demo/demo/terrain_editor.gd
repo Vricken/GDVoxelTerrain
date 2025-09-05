@@ -25,5 +25,5 @@ func _edit(union : bool):
 		#terrain.modify(sdf, )
 		#terrain.modify(sdf, 0, result.position, 10)
 	#OPERATION
-		terrain.sphere_edit(result.position, 50, union)
+		terrain.sphere_edit(result.position, 15, union)
 		#terrain.spawn_debug_spheres_in_bounds(result.position, 16)

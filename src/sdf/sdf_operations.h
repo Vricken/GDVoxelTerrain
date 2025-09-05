@@ -45,6 +45,60 @@ static inline float apply_operation(Operation op, float a, float b, float k = 1.
         return a;
     }
 }
+
+static inline void apply_operation(
+    Operation op,
+    float a, const glm::vec3& na,
+    float b, const glm::vec3& nb,
+    float k,
+    float& outValue, glm::vec3& outNormal)
+{
+    switch (op)
+    {
+    case SDF_OPERATION_UNION:
+        if (a < b) { outValue = a; outNormal = na; }
+        else       { outValue = b; outNormal = nb; }
+        break;
+
+    case SDF_OPERATION_SUBTRACTION:
+        if (a > -b) { outValue = a; outNormal = na; }
+        else        { outValue = -b; outNormal = -nb; }
+        break;
+
+    case SDF_OPERATION_INTERSECTION:
+        if (a > b) { outValue = a; outNormal = na; }
+        else       { outValue = b; outNormal = nb; }
+        break;
+
+    case SDF_OPERATION_SMOOTH_UNION:
+    {
+        float h = std::clamp(0.5f + 0.5f * (b - a) / k, 0.0f, 1.0f);
+        outValue = glm::mix(b, a, h) - k * h * (1.0f - h);
+        outNormal = glm::normalize(glm::mix(nb, na, h));
+    } break;
+
+    case SDF_OPERATION_SMOOTH_SUBTRACTION:
+    {
+        float h = std::clamp(0.5f - 0.5f * (b + a) / k, 0.0f, 1.0f);
+        outValue = glm::mix(a, -b, h) + k * h * (1.0f - h);
+        outNormal = glm::normalize(glm::mix(na, -nb, h));
+    } break;
+
+    case SDF_OPERATION_SMOOTH_INTERSECTION:
+    {
+        float h = std::clamp(0.5f - 0.5f * (b - a) / k, 0.0f, 1.0f);
+        outValue = glm::mix(b, a, h) + k * h * (1.0f - h);
+        outNormal = glm::normalize(glm::mix(nb, na, h));
+    } break;
+
+    default:
+        outValue = a;
+        outNormal = na;
+        break;
+    }
+}
+
+
 } // namespace SDF
 
 #endif // SDF_OPERATIONS_H
