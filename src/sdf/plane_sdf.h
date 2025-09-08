@@ -3,6 +3,8 @@
 
 #include "signed_distance_field.h"
 
+namespace godot
+{
 class JarPlaneSdf : public JarSignedDistanceField
 {
     GDCLASS(JarPlaneSdf, JarSignedDistanceField);
@@ -47,6 +49,11 @@ class JarPlaneSdf : public JarSignedDistanceField
         return _normal;
     }
 
+    virtual Bounds bounds() const override
+    {
+        return Bounds(glm::vec3(-10000.0f), glm::vec3(10000.0f));
+    }
+
   protected:
     static void _bind_methods()
     {
@@ -58,5 +65,6 @@ class JarPlaneSdf : public JarSignedDistanceField
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "d"), "set_d", "get_d");
     }
 };
+}
 
 #endif // PLANE_SDF_H

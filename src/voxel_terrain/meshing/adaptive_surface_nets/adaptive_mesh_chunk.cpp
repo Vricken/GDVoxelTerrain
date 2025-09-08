@@ -64,7 +64,7 @@ AdaptiveMeshChunk::AdaptiveMeshChunk(const JarVoxelTerrain &terrain, const Voxel
     float maxChunkSize = (1 << chunkLoD + 1);
     float normalizingFactor = 1.0f / leafSize;
     half_leaf_size = glm::vec3(leafSize * 0.5);
-    glm::vec3 minPos = bounds.min;
+    glm::vec3 minPos = bounds.min_corner;
     glm::ivec3 clampMax = glm::ivec3(_chunkResolution - 1);
 
     positions.clear();
@@ -87,8 +87,8 @@ AdaptiveMeshChunk::AdaptiveMeshChunk(const JarVoxelTerrain &terrain, const Voxel
             continue;
 
         auto overlap = bounds.intersected(b);
-        glm::vec3 min = (overlap.min - minPos) * normalizingFactor;
-        glm::vec3 max = (overlap.max - minPos) * normalizingFactor;
+        glm::vec3 min = (overlap.min_corner - minPos) * normalizingFactor;
+        glm::vec3 max = (overlap.max_corner - minPos) * normalizingFactor;
         glm::ivec3 intMin = glm::clamp((glm::ivec3)glm::floor(min), glm::ivec3(0.0f), glm::ivec3(clampMax));
         glm::ivec3 intMax =
             glm::clamp((glm::ivec3)glm::ceil(max) - glm::ivec3(1.0f), glm::ivec3(0.0f), glm::ivec3(clampMax));

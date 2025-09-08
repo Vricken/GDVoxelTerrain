@@ -1,16 +1,17 @@
 #ifndef JAR_SIGNED_DISTANCE_FIELD_H
 #define JAR_SIGNED_DISTANCE_FIELD_H
 
+#include "sdf_operations.h"
+#include "bounds.h"
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <optional>
-#include "sdf_operations.h"
 
-using namespace godot;
-
+namespace godot
+{
 class JarSignedDistanceField : public Resource
 {
     GDCLASS(JarSignedDistanceField, Resource);
@@ -44,13 +45,14 @@ class JarSignedDistanceField : public Resource
     }
 
     virtual float distance(const glm::vec3 &pos) const = 0;
+    virtual Bounds bounds() const = 0;
 
   protected:
     static void _bind_methods()
     {
-        // Binding methods for Godot        
-
+        // Binding methods for Godot
     }
 };
+} // namespace godot
 
 #endif // JAR_SIGNED_DISTANCE_FIELD_H

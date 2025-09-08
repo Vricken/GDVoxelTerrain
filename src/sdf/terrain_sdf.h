@@ -4,6 +4,8 @@
 #include "signed_distance_field.h"
 #include <godot_cpp/classes/fast_noise_lite.hpp>
 
+namespace godot
+{
 class JarTerrainSdf : public JarSignedDistanceField
 {
     GDCLASS(JarTerrainSdf, JarSignedDistanceField);
@@ -79,6 +81,11 @@ class JarTerrainSdf : public JarSignedDistanceField
         ClassDB::bind_method(D_METHOD("get_height_scale"), &JarTerrainSdf::get_height_scale);
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "height_scale"), "set_height_scale", "get_height_scale");
     }
-};
 
+    virtual Bounds bounds() const override
+    {
+        return Bounds(glm::vec3(-10000.0f, -_heightScale, -10000.0f), glm::vec3(10000.0f, _heightScale, 10000.0f));
+    }
+};
+}
 #endif // TERRAIN_SDF_H

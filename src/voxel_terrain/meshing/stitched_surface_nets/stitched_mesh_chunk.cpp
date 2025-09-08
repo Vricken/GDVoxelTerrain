@@ -81,7 +81,7 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
     {
         float normalizingFactor = 1.0f / leaf_size;
         half_leaf_size = glm::vec3(leaf_size * 0.5);
-        glm::vec3 minPos = bounds.min;
+        glm::vec3 minPos = bounds.min_corner;
         glm::ivec3 clampMax = glm::ivec3(LargestPos);
 
         for (size_t i = 0; i < nodes.size(); i++)
@@ -117,9 +117,9 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
 
             glm::vec3 difference = (edge_length * 2.0f / LEAF_COUNT) * glm::abs(CheckLodOffsets[i]);
             if (i % 2 == 0)
-                rejection_bounds.max -= difference;
+                rejection_bounds.max_corner -= difference;
             else
-                rejection_bounds.min += difference;
+                rejection_bounds.min_corner += difference;
 
             // UtilityFunctions::print("b: " + Utils::to_string(b.get_size() * normalizingFactor));
         }

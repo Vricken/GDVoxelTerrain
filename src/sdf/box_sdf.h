@@ -3,6 +3,8 @@
 
 #include "signed_distance_field.h"
 
+namespace godot
+{
 class JarBoxSdf : public JarSignedDistanceField
 {
     GDCLASS(JarBoxSdf, JarSignedDistanceField);
@@ -58,6 +60,12 @@ class JarBoxSdf : public JarSignedDistanceField
         ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "center"), "set_center", "get_center");
         ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "extent"), "set_extent", "get_extent");
     }
+
+    virtual Bounds bounds() const override
+    {
+        return Bounds(_center - _extent, _center + _extent);
+    }
 };
+}
 
 #endif // AABB_SDF_H

@@ -3,6 +3,8 @@
 
 #include "signed_distance_field.h"
 
+namespace godot
+{
 class JarSphereSdf : public JarSignedDistanceField
 {
     GDCLASS(JarSphereSdf, JarSignedDistanceField);
@@ -42,6 +44,11 @@ class JarSphereSdf : public JarSignedDistanceField
         return glm::normalize(pos - _center);
     }
 
+    virtual Bounds bounds() const override
+    {
+        return Bounds(_center - glm::vec3(_radius), _center + glm::vec3(_radius));
+    }
+
   protected:
     static void _bind_methods()
     {
@@ -53,5 +60,6 @@ class JarSphereSdf : public JarSignedDistanceField
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "radius"), "set_radius", "get_radius");
     }
 };
+}
 
 #endif // SPHERE_SDF_H

@@ -8,11 +8,10 @@
 [ext_resource type="Script" uid="uid://bhjsuh0weeh6j" path="res://demo/label.gd" id="9_5crk8"]
 
 [sub_resource type="JarSphereSdf" id="JarSphereSdf_oeqrt"]
-radius = 15.0
+radius = 50.0
 
 [sub_resource type="JarSdfModification" id="JarSdfModification_o85ls"]
 sdf = SubResource("JarSphereSdf_oeqrt")
-radius = 15.0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_67j7s"]
 

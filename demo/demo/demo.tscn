@@ -35,7 +35,6 @@ radius = 15.0
 
 [sub_resource type="JarSdfModification" id="JarSdfModification_ykvhj"]
 sdf = SubResource("JarSphereSdf_oeqrt")
-radius = 15.0
 
 [sub_resource type="Sky" id="Sky_s1s6j"]
 sky_material = ExtResource("6_onvmd")

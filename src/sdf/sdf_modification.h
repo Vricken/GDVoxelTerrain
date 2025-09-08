@@ -7,7 +7,8 @@
 #include <glm/glm.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/core/class_db.hpp>
-
+namespace godot
+{
 struct ModifySettings
 {
     Ref<JarSignedDistanceField> sdf;
@@ -30,7 +31,7 @@ class JarSdfModification : public Resource
     Ref<JarSignedDistanceField> _sdf;
     SDFOperation _operation = SDF_OPERATION_UNION;
     float _smoothK = 1.0f;
-    float _radius = 1.0f;
+    float _max_radius = 1000.0f; // it may be less than this value if the sdf bounds are smaller. The modification will attempt to affect the smallest volume possible
     glm::vec3 _center{0.0f};
 
   public:
@@ -61,13 +62,13 @@ class JarSdfModification : public Resource
         return _smoothK;
     }
 
-    void set_radius(float r)
+    void set_max_radius(float r)
     {
-        _radius = r;
+        _max_radius = r;
     }
-    float get_radius() const
+    float get_max_radius() const
     {
-        return _radius;
+        return _max_radius;
     }
 
     void set_center(const Vector3 &c)
@@ -95,8 +96,14 @@ class JarSdfModification : public Resource
         s.position = _center - octree_center;
         s.operation = _operation;
         s.smooth_k = _smoothK;
-        glm::vec3 halfExtents(_radius + bounds_buffer);
-        s.bounds = Bounds(s.position - halfExtents, s.position + halfExtents);
+
+        // Get the bounds of the SDF, but make sure it does not exceed the specified radius
+        Bounds sdfBounds = s.sdf->bounds().expanded(bounds_buffer).recentered(s.position);
+
+        glm::vec3 halfExtents(_max_radius + bounds_buffer);
+        Bounds radiusBounds(s.position - halfExtents, s.position + halfExtents);
+
+        s.bounds = sdfBounds.intersected(radiusBounds);
         return s;
     }
 
@@ -112,8 +119,8 @@ class JarSdfModification : public Resource
         ClassDB::bind_method(D_METHOD("set_smooth_k", "k"), &JarSdfModification::set_smooth_k);
         ClassDB::bind_method(D_METHOD("get_smooth_k"), &JarSdfModification::get_smooth_k);
 
-        ClassDB::bind_method(D_METHOD("set_radius", "radius"), &JarSdfModification::set_radius);
-        ClassDB::bind_method(D_METHOD("get_radius"), &JarSdfModification::get_radius);
+        ClassDB::bind_method(D_METHOD("set_max_radius", "max_radius"), &JarSdfModification::set_max_radius);
+        ClassDB::bind_method(D_METHOD("get_max_radius"), &JarSdfModification::get_max_radius);
 
         ClassDB::bind_method(D_METHOD("set_center", "center"), &JarSdfModification::set_center);
         ClassDB::bind_method(D_METHOD("get_center"), &JarSdfModification::get_center);
@@ -131,9 +138,11 @@ class JarSdfModification : public Resource
                                   "Union,Subtraction,Intersection,SmoothUnion,SmoothSubtraction,SmoothIntersection"),
                      "set_operation", "get_operation");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "smooth_k"), "set_smooth_k", "get_smooth_k");
-        ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "radius"), "set_radius", "get_radius");
+        ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "max_radius"), "set_max_radius", "get_max_radius");
         ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "center"), "set_center", "get_center");
     }
+
 };
+}
 
 #endif // SDF_MODIFICATION_H

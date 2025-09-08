@@ -67,7 +67,7 @@ class Utils : public Object
 
     static godot::String to_string(const Bounds &bounds)
     {
-        return godot::String(("{" + glm::to_string(bounds.min) + ", " + glm::to_string(bounds.max) + "}").c_str());
+        return godot::String(("{" + glm::to_string(bounds.min_corner) + ", " + glm::to_string(bounds.max_corner) + "}").c_str());
     }
 
     template<class matType>

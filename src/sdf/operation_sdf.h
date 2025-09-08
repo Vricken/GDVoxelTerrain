@@ -4,6 +4,8 @@
 #include "signed_distance_field.h"
 #include "sdf_operations.h"
 
+namespace godot
+{
 class JarOperationSdf : public JarSignedDistanceField
 {
     GDCLASS(JarOperationSdf, JarSignedDistanceField);
@@ -70,6 +72,31 @@ protected:
         ADD_PROPERTY(PropertyInfo(Variant::INT, "operation", PROPERTY_HINT_ENUM, "Union,Subtraction,Intersection,SmoothUnion,SmoothSubtraction,SmoothIntersection"), "set_operation", "get_operation");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "smooth_k"), "set_smooth_k", "get_smooth_k");
     }
+
+    virtual Bounds bounds() const override
+    {
+        if (!_a.is_valid() || !_b.is_valid())
+            return Bounds();
+
+        Bounds boundsA = _a->bounds();
+        Bounds boundsB = _b->bounds();
+
+        switch (_operation)
+        {
+        case SDF_OPERATION_UNION:
+        case SDF_OPERATION_SMOOTH_UNION:
+            return boundsA.joined(boundsB);
+        case SDF_OPERATION_SUBTRACTION:
+        case SDF_OPERATION_SMOOTH_SUBTRACTION:
+            return boundsA;
+        case SDF_OPERATION_INTERSECTION:
+        case SDF_OPERATION_SMOOTH_INTERSECTION:
+            return boundsA.intersected(boundsB);
+        default:
+            return Bounds();
+        }
+    }
 };
+}
 
 #endif // OPERATION_SDF_H
