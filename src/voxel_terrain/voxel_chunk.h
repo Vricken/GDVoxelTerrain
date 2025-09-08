@@ -13,7 +13,8 @@
 #include <godot_cpp/classes/static_body3d.hpp>
 #include <vector>
 
-using namespace godot;
+namespace godot {
+
 
 class JarVoxelTerrain;
 class VoxelOctreeNode;
@@ -89,5 +90,6 @@ class JarVoxelChunk : public Node3D
     void update_collision_mesh();
     void delete_chunk();
 };
+}
 
 #endif // JAR_VOXEL_CHUNK_H

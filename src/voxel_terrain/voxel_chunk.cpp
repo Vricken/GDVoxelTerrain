@@ -5,6 +5,8 @@
 #include <godot_cpp/classes/sphere_mesh.hpp>
 #include <godot_cpp/classes/standard_material3d.hpp>
 
+using namespace godot;
+
 void JarVoxelChunk::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("get_mesh_instance"), &JarVoxelChunk::get_mesh_instance);

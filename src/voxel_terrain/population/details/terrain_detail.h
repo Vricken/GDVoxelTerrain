@@ -11,7 +11,7 @@
 #include <optional>
 #include "terrain_populator.h"
 
-using namespace godot;
+namespace godot {
 
 class JarTerrainDetail : public JarTerrainPopulator
 {
@@ -66,5 +66,6 @@ class JarTerrainDetail : public JarTerrainPopulator
         ADD_PROPERTY(PropertyInfo(Variant::BOOL, "shadows_enabled"), "set_shadows_enabled", "get_shadows_enabled");
     }
 };
+}
 
 #endif // JAR_TERRAIN_DETAIL_H

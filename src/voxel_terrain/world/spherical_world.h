@@ -3,6 +3,8 @@
 
 #include "world.h"
 
+namespace godot {
+
 class JarSphericalWorld : public JarWorld
 {
     GDCLASS(JarSphericalWorld, JarWorld);
@@ -32,5 +34,7 @@ class JarSphericalWorld : public JarWorld
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "sphere_radius"), "set_sphere_radius", "get_sphere_radius");
     }
 };
+
+}
 
 #endif // SPHERICAL_WORLD_H

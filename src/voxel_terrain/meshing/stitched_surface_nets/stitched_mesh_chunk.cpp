@@ -2,6 +2,8 @@
 #include "voxel_terrain.h"
 #include "utils.h"
 
+using namespace godot;
+
 #define LEAF_COUNT 16.0f
 
 const std::vector<glm::ivec3> StitchedMeshChunk::Offsets = {

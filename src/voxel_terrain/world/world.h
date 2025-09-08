@@ -5,7 +5,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-using namespace godot;
+namespace godot {
 
 class JarWorld : public Node3D
 {
@@ -40,5 +40,6 @@ class JarWorld : public Node3D
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mass"), "set_mass", "get_mass");
     }
 };
+}
 
 #endif // JAR_WORLD_H

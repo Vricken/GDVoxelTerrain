@@ -10,9 +10,11 @@
 #include "terrain_detail.h"
 #include "terrain_populator.h"
 #include "terrain_sdf.h"
+#include "transformed_sdf.h"
 #include "voxel_chunk.h"
 #include "voxel_terrain.h"
 #include "world.h"
+
 using namespace godot;
 
 void initialize_jar_voxel_terrain_module(ModuleInitializationLevel p_level)
@@ -27,6 +29,7 @@ void initialize_jar_voxel_terrain_module(ModuleInitializationLevel p_level)
         GDREGISTER_CLASS(JarPlaneSdf);
         GDREGISTER_CLASS(JarTerrainSdf);
         GDREGISTER_CLASS(JarPlanetSdf);
+        GDREGISTER_CLASS(JarTransformedSdf);
 
         GDREGISTER_CLASS(JarSdfModification);
 

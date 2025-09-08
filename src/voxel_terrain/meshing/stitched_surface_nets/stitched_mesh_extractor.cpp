@@ -1,6 +1,8 @@
 #include "stitched_mesh_extractor.h"
 #include "voxel_terrain/voxel_terrain.h"
 
+using namespace godot;
+
 StitchedMeshExtractor::StitchedMeshExtractor(const JarVoxelTerrain &terrain)
 {
 }

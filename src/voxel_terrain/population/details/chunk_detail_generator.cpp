@@ -3,6 +3,8 @@
 #include "voxel_terrain.h"
 #include "world.h"
 
+using namespace godot;
+
 ChunkDetailGenerator::ChunkDetailGenerator(JarWorld *world) : world(world)
 {
     // Constructor implementation

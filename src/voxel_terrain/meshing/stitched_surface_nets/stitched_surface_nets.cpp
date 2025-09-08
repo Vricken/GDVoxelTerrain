@@ -6,6 +6,8 @@
 #include "utility/utils.h"
 #include "voxel_terrain.h"
 
+using namespace godot;
+
 StitchedSurfaceNets::StitchedSurfaceNets(const JarVoxelTerrain &terrain) : StitchedMeshExtractor(terrain)
 {
     _cubicVoxels = (terrain.get_cubic_voxels());

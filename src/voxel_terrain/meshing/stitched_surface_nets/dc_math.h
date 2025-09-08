@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+namespace godot {
+
 struct HermiteSample {
     glm::vec3 p;
     glm::vec3 n; // unit
@@ -28,3 +30,4 @@ glm::vec3 clamp_to_cell(const std::vector<glm::vec3>& pts, const glm::vec3& x);
 
 int face_bit_from_vals(float v0, float v1);
 int pack_face_dirs(const std::vector<int>& N, const class StitchedMeshChunk* mc);
+}

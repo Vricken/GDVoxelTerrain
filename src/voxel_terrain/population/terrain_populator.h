@@ -8,7 +8,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <optional>
 
-using namespace godot;
+namespace godot {
 
 class JarTerrainPopulator : public Resource
 {
@@ -93,5 +93,6 @@ class JarTerrainPopulator : public Resource
         ClassDB::bind_method(D_METHOD("build_transform", "origin", "up", "rotation", "scale"), &JarTerrainPopulator::build_transform);
     }
 };
+}
 
 #endif // JAR_TERRAIN_POPULATOR_H

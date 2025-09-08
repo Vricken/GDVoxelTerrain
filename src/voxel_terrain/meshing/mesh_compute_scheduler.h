@@ -10,7 +10,7 @@
 #include "utility/thread_pool.h"
 #include "utility/concurrent_priority_queue.h"
 
-using namespace godot;
+namespace godot {
 
 class JarVoxelTerrain;
 
@@ -63,5 +63,6 @@ class MeshComputeScheduler
         return !ChunksToAdd.empty();
     }
 };
+}
 
 #endif // MESH_COMPUTE_SCHEDULER_H

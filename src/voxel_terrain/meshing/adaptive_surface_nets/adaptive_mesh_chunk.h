@@ -7,6 +7,8 @@
 #include <unordered_set>
 #include <vector>
 
+namespace godot {
+
 class JarVoxelTerrain;
 
 class AdaptiveMeshChunk
@@ -72,5 +74,6 @@ private:
     bool IsEdgeChunk = false;
     int RealLoD = 0;
 };
+}
 
 #endif // MESH_CHUNK_H

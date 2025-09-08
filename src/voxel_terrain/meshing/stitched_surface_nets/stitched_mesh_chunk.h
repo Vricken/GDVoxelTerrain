@@ -9,6 +9,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+namespace godot {
+
 class JarVoxelTerrain;
 
 class StitchedMeshChunk
@@ -108,5 +110,6 @@ class StitchedMeshChunk
     // chunk boundaries, 6 bits each: 0,0,-z,z,-y,y,-x,x
 
 };
+}
 
 #endif // MESH_CHUNK_H

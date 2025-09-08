@@ -22,7 +22,7 @@
 #include <queue>
 #include <vector>
 
-using namespace godot;
+namespace godot {
 
 class JarVoxelTerrain : public Node3D
 {
@@ -176,5 +176,6 @@ class JarVoxelTerrain : public Node3D
     void set_terrain_details(const TypedArray<JarTerrainDetail> &details);
     TypedArray<JarTerrainDetail> get_terrain_details() const;
 };
+}
 
 #endif // VOXEL_TERRAIN_H

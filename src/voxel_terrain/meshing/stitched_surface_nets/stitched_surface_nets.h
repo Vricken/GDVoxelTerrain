@@ -3,6 +3,8 @@
 
 #include "stitched_mesh_extractor.h"
 
+namespace godot {
+
 class StitchedSurfaceNets : public StitchedMeshExtractor {
 public:
     StitchedSurfaceNets(const JarVoxelTerrain& terrain);
@@ -12,5 +14,6 @@ public:
 protected:
     void create_vertex(const int node_id, const std::vector<int>& neighbours, bool on_ring) override;
 };
+}
 
 #endif // STITCHED_SURFACE_NETS_H

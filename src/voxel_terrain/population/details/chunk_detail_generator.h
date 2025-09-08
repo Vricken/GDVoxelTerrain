@@ -1,3 +1,6 @@
+#ifndef CHUNK_DETAIL_GENERATOR_H
+#define CHUNK_DETAIL_GENERATOR_H
+
 #include <vector>
 #include <godot_cpp/classes/multi_mesh.hpp>
 // #include <godot_cpp/classes/array.hpp>
@@ -11,7 +14,7 @@
 
 #include "terrain_detail.h"
 
-using namespace godot;
+namespace godot {
 
 class JarVoxelTerrain;
 class ChunkMeshData;
@@ -41,3 +44,6 @@ public:
 
     TypedArray<MultiMesh> generate_details(const TypedArray<JarTerrainDetail> &details, const ChunkMeshData &chunkMeshData);
 };
+}
+
+#endif // CHUNK_DETAIL_GENERATOR_H

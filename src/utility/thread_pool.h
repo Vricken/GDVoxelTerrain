@@ -6,6 +6,8 @@
 #include <condition_variable>
 #include <functional>
 
+namespace godot {
+
 class ThreadPool {
 public:
     ThreadPool(size_t numThreads);
@@ -21,3 +23,4 @@ private:
     
     void workerThread();
 };
+}

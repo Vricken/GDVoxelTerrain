@@ -2,6 +2,8 @@
 #include "plane_sdf.h"
 #include "sphere_sdf.h"
 
+using namespace godot;
+
 void JarVoxelTerrain::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("get_player_node"), &JarVoxelTerrain::get_player_node);

@@ -4,7 +4,9 @@
 #include <limits>
 #include <algorithm>
 
-bool edge_zero_cross(float va, float vb, float& t_out) {
+using namespace godot;
+
+bool godot::edge_zero_cross(float va, float vb, float& t_out) {
     if ((va >= 0.0f && vb >= 0.0f) || (va <= 0.0f && vb <= 0.0f)) return false;
     const float denom = std::abs(va) + std::abs(vb);
     if (denom <= 1e-12f) return false;
@@ -12,7 +14,7 @@ bool edge_zero_cross(float va, float vb, float& t_out) {
     return true;
 }
 
-HermiteSample interpolate_sample(const glm::vec3& pa, const glm::vec3& pb,
+HermiteSample godot::interpolate_sample(const glm::vec3& pa, const glm::vec3& pb,
                                  const glm::vec3& na, const glm::vec3& nb,
                                  const glm::vec4& ca, const glm::vec4& cb,
                                  float t) {
@@ -41,7 +43,7 @@ bool QEF::solve(glm::vec3& out, const glm::vec3& target, float lambda) const {
     return std::isfinite(out.x) && std::isfinite(out.y) && std::isfinite(out.z);
 }
 
-glm::vec3 clamp_to_cell(const std::vector<glm::vec3>& pts, const glm::vec3& x) {
+glm::vec3 godot::clamp_to_cell(const std::vector<glm::vec3>& pts, const glm::vec3& x) {
     glm::vec3 mn(std::numeric_limits<float>::infinity());
     glm::vec3 mx(-std::numeric_limits<float>::infinity());
     for (const auto& p : pts) {
@@ -52,14 +54,14 @@ glm::vec3 clamp_to_cell(const std::vector<glm::vec3>& pts, const glm::vec3& x) {
     return glm::clamp(x, mn - eps, mx + eps);
 }
 
-int face_bit_from_vals(float v0, float v1) {
+int godot::face_bit_from_vals(float v0, float v1) {
     const bool neg0 = v0 < 0.0f, neg1 = v1 < 0.0f;
     if (neg0 == neg1) return 0;
     return neg0 ? -1 : +1;
 }
 
 // NOTE: Update corner index pairs to match your corner indexing
-int pack_face_dirs(const std::vector<int>& N, const StitchedMeshChunk* mc) {
+int godot::pack_face_dirs(const std::vector<int>& N, const StitchedMeshChunk* mc) {
     const float vx0 = mc->nodes[N[0]]->get_value();
     const float vx1 = mc->nodes[N[1]]->get_value();
     const float vy0 = mc->nodes[N[0]]->get_value();

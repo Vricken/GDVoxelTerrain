@@ -3,6 +3,8 @@
 
 #include "world.h"
 
+namespace godot {
+
 class JarPlanarWorld : public JarWorld
 {
     GDCLASS(JarPlanarWorld, JarWorld);
@@ -40,5 +42,6 @@ class JarPlanarWorld : public JarWorld
         ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "normal"), "set_normal", "get_normal");
     }
 };
+}
 
 #endif // JAR_PLANAR_WORLD_H

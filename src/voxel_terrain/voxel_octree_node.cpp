@@ -4,6 +4,8 @@
 #include <cmath>
 #include <execution>
 
+using namespace godot;
+
 VoxelOctreeNode::VoxelOctreeNode(int size) : VoxelOctreeNode(nullptr, glm::vec3(0.0f), size)
 {
 }

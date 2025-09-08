@@ -3,6 +3,9 @@
 
 #include "chunk_mesh_data.h"
 
+
+namespace godot {
+
 class JarVoxelTerrain;
 class VoxelOctreeNode;
 
@@ -13,5 +16,6 @@ public:
 
     virtual ChunkMeshData* generate_mesh_data(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk) = 0;
 };
+}
 
 #endif // MESH_EXTRACTOR_H

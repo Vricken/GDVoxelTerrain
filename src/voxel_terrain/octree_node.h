@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <memory>
 
+namespace godot {
+
 template <typename TNode>
 class OctreeNode {
 public:
@@ -72,5 +74,6 @@ protected:
     virtual int min_size() const { return 0; }
     virtual std::unique_ptr<TNode> create_child_node(const glm::vec3& center, int size) = 0;
 };
+}
 
 #endif // OCTREE_NODE_H

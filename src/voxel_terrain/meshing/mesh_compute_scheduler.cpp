@@ -6,6 +6,8 @@
 #include "stitched_surface_nets/stitched_dual_contouring.h"
 #include "voxel_octree_node.h"
 
+using namespace godot;
+
 MeshComputeScheduler::MeshComputeScheduler(int maxConcurrentTasks)
     : _maxConcurrentTasks(maxConcurrentTasks), _activeTasks(0), _totalTris(0), _prevTris(0),
       threadPool(maxConcurrentTasks)

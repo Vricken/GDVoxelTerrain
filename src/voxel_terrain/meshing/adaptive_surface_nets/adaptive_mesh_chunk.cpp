@@ -2,6 +2,8 @@
 #include "voxel_terrain.h"
 #include "utils.h"
 
+using namespace godot;
+
 const std::vector<glm::ivec3> AdaptiveMeshChunk::Offsets = {glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0), glm::ivec3(0, 1, 0),
                                                     glm::ivec3(1, 1, 0), glm::ivec3(0, 0, 1), glm::ivec3(1, 0, 1),
                                                     glm::ivec3(0, 1, 1), glm::ivec3(1, 1, 1)};

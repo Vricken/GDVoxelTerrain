@@ -11,7 +11,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-using namespace godot;
+namespace godot {
 
 class ChunkMeshData
 {
@@ -61,5 +61,6 @@ class ChunkMeshData
     //     return chunk_detail_data.should_have_grass_texture();
     // }
 };
+}
 
 #endif // JAR_CHUNK_MESH_DATA_H

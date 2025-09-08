@@ -2,6 +2,7 @@
 #define STITCHED_DUAL_CONTOURING_H
 
 #include "stitched_mesh_extractor.h"
+namespace godot {
 
 class StitchedDualContouring : public StitchedMeshExtractor {
 public:
@@ -15,5 +16,6 @@ protected:
                        const std::vector<int>& neighbours,
                        const bool on_ring) override;
 };
+}
 
 #endif // STITCHED_DUAL_CONTOURING_H

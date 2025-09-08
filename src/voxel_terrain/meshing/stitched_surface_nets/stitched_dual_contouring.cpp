@@ -12,6 +12,8 @@
 #include "voxel_terrain.h"
 #include "dc_math.h"
 
+using namespace godot;
+
 inline bool is_finite3(const glm::vec3 &v) {
     return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
 }

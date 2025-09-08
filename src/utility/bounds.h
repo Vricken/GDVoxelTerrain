@@ -8,6 +8,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
+namespace godot {
+
 struct Bounds
 {
   public:
@@ -211,5 +213,6 @@ struct Bounds
     }
 
 };
+}
 
 #endif // JAR_AABB_H

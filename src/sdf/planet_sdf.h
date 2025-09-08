@@ -13,7 +13,6 @@ class JarPlanetSdf : public JarSignedDistanceField
 
   private:
     Ref<FastNoiseLite> _noiseLite;
-    glm::vec3 _center = glm::vec3(0.0f);
     float _radius = 1000.0f;
     float _noiseScale = 50.0f;
     const float Epsilon = 0.01f;
@@ -41,15 +40,6 @@ class JarPlanetSdf : public JarSignedDistanceField
         return _radius;
     }
 
-    void set_center(Vector3 center)
-    {
-        _center = glm::vec3(center.x, center.y, center.z);
-    }
-    Vector3 get_center() const
-    {
-        return Vector3(_center.x, _center.y, _center.z);
-    }
-
     void set_noise_scale(float scale)
     {
         _noiseScale = scale;
@@ -67,7 +57,7 @@ class JarPlanetSdf : public JarSignedDistanceField
             return 0.0f;
 
         // Convert to spherical coordinates for more natural planet noise
-        const glm::vec3 dir = glm::normalize(pos - _center);
+        const glm::vec3 dir = glm::normalize(pos);
         const float latitude = asin(dir.y);
         const float longitude = atan2(dir.z, dir.x);
 
@@ -81,7 +71,7 @@ class JarPlanetSdf : public JarSignedDistanceField
 
     virtual float distance(const glm::vec3 &pos) const override
     {
-        const glm::vec3 to_center = pos - _center;
+        const glm::vec3 to_center = pos;
         const float base_distance = glm::length(to_center) - _radius;
 
         if (base_distance > _noiseScale * 1.25f)
@@ -101,21 +91,19 @@ class JarPlanetSdf : public JarSignedDistanceField
         ClassDB::bind_method(D_METHOD("get_noise"), &JarPlanetSdf::get_noise);
         ClassDB::bind_method(D_METHOD("set_radius", "radius"), &JarPlanetSdf::set_radius);
         ClassDB::bind_method(D_METHOD("get_radius"), &JarPlanetSdf::get_radius);
-        ClassDB::bind_method(D_METHOD("set_center", "center"), &JarPlanetSdf::set_center);
-        ClassDB::bind_method(D_METHOD("get_center"), &JarPlanetSdf::get_center);
+
         ClassDB::bind_method(D_METHOD("set_noise_scale", "scale"), &JarPlanetSdf::set_noise_scale);
         ClassDB::bind_method(D_METHOD("get_noise_scale"), &JarPlanetSdf::get_noise_scale);
 
         ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "FastNoiseLite"), "set_noise",
                      "get_noise");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "radius"), "set_radius", "get_radius");
-        ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "center"), "set_center", "get_center");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "noise_scale"), "set_noise_scale", "get_noise_scale");
     }
 
     virtual Bounds bounds() const override
     {
-        return Bounds(_center - glm::vec3(_radius + _noiseScale), _center + glm::vec3(_radius + _noiseScale));
+        return Bounds(-glm::vec3(_radius + _noiseScale), glm::vec3(_radius + _noiseScale));
     }
 };
 } // namespace godot

@@ -5,6 +5,9 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "voxel_terrain.h"
+
+using namespace godot;
+
 AdaptiveSurfaceNets::AdaptiveSurfaceNets(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk)
     : _chunk(&chunk), _meshChunk(AdaptiveMeshChunk(terrain, chunk))
 {

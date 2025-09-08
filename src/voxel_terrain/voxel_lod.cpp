@@ -1,6 +1,7 @@
 #include "voxel_lod.h"
 #include "voxel_terrain.h"
 #include "mesh_compute_scheduler.h"
+using namespace godot;
 
 JarVoxelLoD::JarVoxelLoD()
     : _automaticUpdate(true), _automaticUpdateDistance(32.0f), _lodLevelCount(20),

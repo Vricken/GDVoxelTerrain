@@ -11,6 +11,9 @@
 #include <memory>
 #include <vector>
 
+
+namespace godot {
+
 class JarVoxelTerrain;
 
 class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
@@ -88,5 +91,6 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
   protected:
     inline virtual std::unique_ptr<VoxelOctreeNode> create_child_node(const glm::vec3 &center, int size) override;
 };
+}
 
 #endif // VOXEL_OCTREE_NODE_H

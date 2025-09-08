@@ -5,6 +5,8 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace godot {
+
 template <typename T, typename Compare = std::less<T>>
 class ConcurrentPriorityQueue {
 public:
@@ -42,5 +44,6 @@ private:
     std::priority_queue<T, std::vector<T>, Compare> q;
     std::condition_variable cv;
 };
+}
 
 #endif // CONCURRENT_PRIORITY_QUEUE_H

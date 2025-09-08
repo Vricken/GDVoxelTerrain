@@ -11,7 +11,7 @@
 #include <godot_cpp/variant/vector3.hpp>
 #include <vector>
 
-using namespace godot;
+namespace godot {
 
 class JarVoxelTerrain;
 
@@ -49,6 +49,7 @@ class JarVoxelLoD
     int lod_at(const glm::vec3 &position) const;
 
 };
+}
 
 #endif // LEVEL_OF_DETAIL_H
 

@@ -13,7 +13,7 @@
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <vector>
 
-using namespace godot;
+namespace godot {
 
 class JarVoxelTerrain;
 
@@ -43,5 +43,6 @@ class AdaptiveSurfaceNets
 
     ChunkMeshData *generate_mesh_data(const JarVoxelTerrain &terrain);
 };
+}
 
 #endif // SURFACE_NETS_H

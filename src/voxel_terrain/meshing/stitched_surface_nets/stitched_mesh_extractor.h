@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace godot;
+namespace godot {
 
 class StitchedMeshExtractor : public MeshExtractor
 {
@@ -70,5 +70,6 @@ class StitchedMeshExtractor : public MeshExtractor
   public:
     virtual ~StitchedMeshExtractor() = default;
 };
+}
 
 #endif // STITCHED_MESH_EXTRACTOR_H
