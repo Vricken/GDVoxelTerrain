@@ -1,5 +1,4 @@
 #include "voxel_terrain.h"
-#include "modify_settings.h"
 #include "plane_sdf.h"
 #include "sphere_sdf.h"
 
@@ -86,14 +85,8 @@ void JarVoxelTerrain::_bind_methods()
                                   ":JarTerrainDetail"),
                  "set_terrain_details", "get_terrain_details");
 
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_UNION);
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_SUBTRACTION);
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_INTERSECTION);
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_SMOOTH_UNION);
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_SMOOTH_SUBTRACTION);
-    BIND_ENUM_CONSTANT(SDF::SDF_OPERATION_SMOOTH_INTERSECTION);
-    ClassDB::bind_method(D_METHOD("modify", "sdf", "operation", "position", "radius"), &JarVoxelTerrain::modify);
-    ClassDB::bind_method(D_METHOD("sphere_edit", "position", "radius", "union"), &JarVoxelTerrain::sphere_edit);
+    ClassDB::bind_method(D_METHOD("modify_using_sdf", "sdf_modification"), &JarVoxelTerrain::modify_using_sdf);
+
     ClassDB::bind_method(D_METHOD("spawn_debug_spheres_in_bounds", "position", "range"),
                          &JarVoxelTerrain::spawn_debug_spheres_in_bounds);
     ClassDB::bind_method(D_METHOD("force_update_lod"), &JarVoxelTerrain::force_update_lod);
@@ -104,34 +97,36 @@ JarVoxelTerrain::JarVoxelTerrain() : _octreeScale(1.0f), _size(14), _playerNode(
     _chunkSize = (1 << _minChunkSize);
 }
 
-void JarVoxelTerrain::modify(const Ref<JarSignedDistanceField> sdf, const SDF::Operation operation,
-                             const Vector3 &position, const float radius)
+void JarVoxelTerrain::modify_using_sdf(const Ref<JarSdfModification> sdf)
 {
-    glm::vec3 pos = glm::vec3(position.x, position.y, position.z);
-    auto s = new JarSphereSdf();
-    s->set_radius(radius);
-
-    auto edge = glm::vec3(radius);
-    _modifySettingsQueue.push({s, Bounds(pos - edge, pos + edge), pos, operation});
-}
-
-void JarVoxelTerrain::sphere_edit(const Vector3 &position, const float radius, bool operation_union)
-{
-    auto global_position = position - get_global_position();
-    glm::vec3 pos = glm::vec3(global_position.x, global_position.y, global_position.z);
-    auto operation = operation_union ? SDF::Operation::SDF_OPERATION_UNION : SDF::Operation::SDF_OPERATION_SUBTRACTION;
-    Ref<JarSphereSdf> sdf;
-    sdf.instantiate();
-    sdf->set_radius(radius);
-    auto edge = glm::vec3(radius + _octreeScale * 2.0f);
-
-    if (_isBuilding)
+    if (!sdf.is_valid())
         return;
-    ModifySettings settings = {sdf, Bounds(pos - edge, pos + edge), pos, operation};
+
+    auto godot_global_position = get_global_position();
+    glm::vec3 global_position = glm::vec3(godot_global_position.x, godot_global_position.y, godot_global_position.z);
+    
+
+    ModifySettings settings = sdf->to_settings(global_position, _octreeScale * 2.0f);
     _voxelRoot->modify_sdf_in_bounds(*this, settings);
-    //_populationRoot->remove_population(settings);
-    //_modifySettingsQueue.push({sdf, Bounds(pos - edge, pos + edge), pos, operation});
 }
+
+
+// void JarVoxelTerrain::sphere_edit(const Vector3 &position, const float radius, bool operation_union)
+// {
+//     auto global_position = position - get_global_position();
+//     glm::vec3 pos = glm::vec3(global_position.x, global_position.y, global_position.z);
+//     auto operation = operation_union ? SDF::Operation::SDF_OPERATION_UNION : SDF::Operation::SDF_OPERATION_SUBTRACTION;
+//     Ref<JarSphereSdf> sdf;
+//     sdf.instantiate();
+//     sdf->set_radius(radius);
+//     auto edge = glm::vec3(radius + _octreeScale * 2.0f);
+//     if (_isBuilding)
+//         return;
+//     ModifySettings settings = {sdf, Bounds(pos - edge, pos + edge), pos, operation};
+//     _voxelRoot->modify_sdf_in_bounds(*this, settings);
+//     //_populationRoot->remove_population(settings);
+//     //_modifySettingsQueue.push({sdf, Bounds(pos - edge, pos + edge), pos, operation});
+// }
 
 void JarVoxelTerrain::enqueue_chunk_collider(VoxelOctreeNode *node)
 {
@@ -359,6 +354,8 @@ void JarVoxelTerrain::process()
         process_modify_queue();
     }
 
+    // UtilityFunctions::print("updating");
+
     process_chunk_queue(delta); // static_cast<float>(delta)
 }
 
@@ -374,13 +371,14 @@ void printUniqueLoDValues(const std::vector<int> &lodValues)
     {
         lodString = lodString.substr(0, lodString.length() - 2);
     }
-    UtilityFunctions::print(lodString);
+    // UtilityFunctions::print(lodString);
 }
 
 void JarVoxelTerrain::build()
 {
     if (_isBuilding || _meshComputeScheduler->is_meshing())
         return;
+    
     std::thread([this]() {
         // UtilityFunctions::print("start building");
         _isBuilding = true;

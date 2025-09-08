@@ -81,6 +81,11 @@ class StitchedMeshChunk
         return half_leaf_size;
     }
 
+    float cell_size() const
+    {
+        return leaf_size;
+    }
+
     glm::ivec3 Octant{1, 1, 1};
     std::vector<VoxelOctreeNode *> nodes;
     std::vector<glm::ivec3> positions;
@@ -96,6 +101,7 @@ class StitchedMeshChunk
 
   private:
     glm::vec3 half_leaf_size;
+    float leaf_size;
     const static int ChunkRes = 16 + 2;
     const static int LargestPos = ChunkRes - 1;
     std::vector<int> _leavesLut; //maps position to index in nodes

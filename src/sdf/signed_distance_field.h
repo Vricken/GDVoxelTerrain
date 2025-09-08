@@ -13,8 +13,6 @@ using namespace godot;
 
 class JarSignedDistanceField : public Resource
 {
-
-
     GDCLASS(JarSignedDistanceField, Resource);
 
   public:

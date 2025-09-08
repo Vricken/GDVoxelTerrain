@@ -53,8 +53,8 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
     Octant = glm::ivec3(chunkCenter.x > cameraPosition.x ? 1 : -1, chunkCenter.y > cameraPosition.y ? 1 : -1,
                         chunkCenter.z > cameraPosition.z ? 1 : -1);
 
-    float leafSize = ((1 << chunk.get_lod()) * terrain.get_octree_scale());
-    Bounds bounds = chunk.get_bounds(terrain.get_octree_scale()).expanded(leafSize - 0.001f);
+    leaf_size = ((1 << chunk.get_lod()) * terrain.get_octree_scale());
+    Bounds bounds = chunk.get_bounds(terrain.get_octree_scale()).expanded(leaf_size - 0.001f);
     nodes.clear();
     terrain.get_voxel_leaves_in_bounds(bounds, chunk.get_lod(), nodes);
     // terrain.get_voxel_leaves_in_bounds(chunk.get_bounds(terrain.get_octree_scale()).expanded( - 0.001f), chunk.get_lod(), nodes);
@@ -79,8 +79,8 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
     faceDirs.resize(nodes.size(), 0);
     _leavesLut.resize(ChunkRes * ChunkRes * ChunkRes, 0);
     {
-        float normalizingFactor = 1.0f / leafSize;
-        half_leaf_size = glm::vec3(leafSize * 0.5);
+        float normalizingFactor = 1.0f / leaf_size;
+        half_leaf_size = glm::vec3(leaf_size * 0.5);
         glm::vec3 minPos = bounds.min;
         glm::ivec3 clampMax = glm::ivec3(LargestPos);
 
@@ -101,7 +101,7 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
 
     if (_lodH2LBoundaries != 0)
     {
-        float normalizingFactor = 0.5f / leafSize;
+        float normalizingFactor = 0.5f / leaf_size;
 
         // rejection_bounds = inner radius
         // acception_bounds = union of the 6 rings, should capture 8x8x2 nodes per side

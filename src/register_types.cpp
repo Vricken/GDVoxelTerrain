@@ -3,7 +3,9 @@
 #include "planar_world.h"
 #include "plane_sdf.h"
 #include "planet_sdf.h"
+#include "operation_sdf.h"
 #include "sphere_sdf.h"
+#include "sdf_modification.h"
 #include "spherical_world.h"
 #include "terrain_detail.h"
 #include "terrain_populator.h"
@@ -19,11 +21,14 @@ void initialize_jar_voxel_terrain_module(ModuleInitializationLevel p_level)
     {
         // SDFs
         GDREGISTER_ABSTRACT_CLASS(JarSignedDistanceField);
+        GDREGISTER_CLASS(JarOperationSdf);
         GDREGISTER_CLASS(JarBoxSdf);
         GDREGISTER_CLASS(JarSphereSdf);
         GDREGISTER_CLASS(JarPlaneSdf);
         GDREGISTER_CLASS(JarTerrainSdf);
         GDREGISTER_CLASS(JarPlanetSdf);
+
+        GDREGISTER_CLASS(JarSdfModification);
 
         // WORLD
         GDREGISTER_ABSTRACT_CLASS(JarWorld);

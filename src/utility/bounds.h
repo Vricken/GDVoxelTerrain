@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <godot_cpp/variant/aabb.hpp>
 #include <godot_cpp/variant/vector3.hpp>
+#include <godot_cpp/variant/string.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 
 struct Bounds
 {
@@ -185,6 +188,12 @@ struct Bounds
     {
         return Bounds(min + offset, max + offset);
     }
+
+    godot::String to_string() const
+    {
+        return godot::String(("{" + glm::to_string(min) + ", " + glm::to_string(max) + "}").c_str());
+    }
+
 };
 
 #endif // JAR_AABB_H

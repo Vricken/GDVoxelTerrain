@@ -3,6 +3,7 @@
 #include "voxel_terrain.h"
 // #include "adaptive_surface_nets/adaptive_surface_nets.h"
 #include "stitched_surface_nets/stitched_surface_nets.h"
+#include "stitched_surface_nets/stitched_dual_contouring.h"
 #include "voxel_octree_node.h"
 
 MeshComputeScheduler::MeshComputeScheduler(int maxConcurrentTasks)
@@ -54,10 +55,21 @@ void MeshComputeScheduler::run_task(const JarVoxelTerrain &terrain, VoxelOctreeN
         return;
     threadPool.enqueue([this, &terrain, &chunk]() {
         // auto meshCompute = AdaptiveSurfaceNets(terrain, chunk);
-        auto meshCompute = StitchedSurfaceNets(terrain, chunk);
-        ChunkMeshData *chunkMeshData = meshCompute.generate_mesh_data(terrain);
+        MeshExtractor* meshCompute;
+        switch (_meshAlgorithm)
+        {
+        case MeshAlgorithm::STITCHED_DUAL_CONTOURING:
+            meshCompute = new StitchedDualContouring(terrain);
+            break;
+        default:
+        case MeshAlgorithm::STITCHED_SURFACE_NETS:            
+            meshCompute = new StitchedSurfaceNets(terrain);
+            break;
+        }
+        auto chunkMeshData = meshCompute->generate_mesh_data(terrain, chunk);
         ChunksToProcess.push(std::make_pair(&(chunk), chunkMeshData));
         _activeTasks--;
+        delete meshCompute;
     });
 }
 

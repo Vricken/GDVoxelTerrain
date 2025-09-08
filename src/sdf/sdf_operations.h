@@ -4,9 +4,8 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-namespace SDF
-{
-enum Operation
+
+enum SDFOperation
 {
     SDF_OPERATION_UNION,
     SDF_OPERATION_SUBTRACTION,
@@ -16,7 +15,10 @@ enum Operation
     SDF_OPERATION_SMOOTH_INTERSECTION,
 };
 
-static inline float apply_operation(Operation op, float a, float b, float k = 1.0f)
+namespace SDF
+{
+
+static inline float apply_operation(SDFOperation op, float a, float b, float k = 1.0f)
 {
     switch (op)
     {
@@ -47,7 +49,7 @@ static inline float apply_operation(Operation op, float a, float b, float k = 1.
 }
 
 static inline void apply_operation(
-    Operation op,
+    SDFOperation op,
     float a, const glm::vec3& na,
     float b, const glm::vec3& nb,
     float k,
@@ -100,5 +102,7 @@ static inline void apply_operation(
 
 
 } // namespace SDF
+
+VARIANT_ENUM_CAST(SDFOperation);
 
 #endif // SDF_OPERATIONS_H

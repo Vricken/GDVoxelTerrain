@@ -1,0 +1,6 @@
+[gd_resource type="JarSdfModification" load_steps=2 format=3 uid="uid://b8h3b334ff6rv"]
+
+[sub_resource type="JarPlaneSdf" id="JarPlaneSdf_l1dww"]
+
+[resource]
+sdf = SubResource("JarPlaneSdf_l1dww")

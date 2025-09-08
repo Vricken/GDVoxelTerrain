@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dnjsdft8x8weu"]
+[gd_scene load_steps=12 format=3 uid="uid://dnjsdft8x8weu"]
 
 [ext_resource type="PackedScene" uid="uid://c7kqgl1k10x14" path="res://addons/jar_voxel_terrain/src/chunk.tscn" id="1_jj1wd"]
 [ext_resource type="JarTerrainSdf" uid="uid://3jlwgf5biu2x" path="res://demo/terrain_sdf.tres" id="2_o85ls"]
@@ -7,7 +7,12 @@
 [ext_resource type="Script" uid="uid://02ob37nu5at8" path="res://demo/terrain_editor.gd" id="7_0d654"]
 [ext_resource type="Script" uid="uid://bhjsuh0weeh6j" path="res://demo/label.gd" id="9_5crk8"]
 
-[sub_resource type="Resource" id="JarSphereSdf_0ru4y"]
+[sub_resource type="JarSphereSdf" id="JarSphereSdf_oeqrt"]
+radius = 15.0
+
+[sub_resource type="JarSdfModification" id="JarSdfModification_o85ls"]
+sdf = SubResource("JarSphereSdf_oeqrt")
+radius = 15.0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_67j7s"]
 
@@ -41,7 +46,7 @@ move_speed = 64.0
 [node name="TerrainEditor" type="Node3D" parent="Camera3D" node_paths=PackedStringArray("terrain")]
 script = ExtResource("7_0d654")
 terrain = NodePath("../../JarPlanarWorld/JarVoxelTerrain")
-sdf = SubResource("JarSphereSdf_0ru4y")
+sdf_modification = SubResource("JarSdfModification_o85ls")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_tkqw2")

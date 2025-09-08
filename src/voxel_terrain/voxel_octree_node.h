@@ -3,7 +3,7 @@
 
 #include "bounds.h"
 #include "voxel_chunk.h"
-#include "modify_settings.h"
+#include "sdf_modification.h"
 #include "octree_node.h"
 #include <algorithm>
 #include <array>
@@ -18,8 +18,8 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
   private:
     float _value = 0;
     int LoD = 0;
-    bool _isModified = false; // if true, modified, so should not be deleted.
     bool _isGenerated = false; // if true, already generated from SDF.
+    bool _isModified = false; // if true, modified, so should not be deleted.
     bool _isDirty = false; // if true, needs to recalculate value from children
     bool _isEnqueued = false; // if true, is enqueued for meshing
     uint8_t _isMaterialized;
@@ -65,7 +65,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
 
     inline bool has_surface(const JarVoxelTerrain &terrain, const float value);
     void queue_update(JarVoxelTerrain &terrain);
-    void modify_sdf_in_bounds(JarVoxelTerrain &terrain, const ModifySettings &settings);
+    void modify_sdf_in_bounds(JarVoxelTerrain &terrain, const ModifySettings &sdf);
     void update_chunk(JarVoxelTerrain &terrain, ChunkMeshData *chunkMeshData);
 
     void delete_chunk();

@@ -14,6 +14,12 @@ using namespace godot;
 
 class JarVoxelTerrain;
 
+enum class MeshAlgorithm
+{
+    STITCHED_SURFACE_NETS,
+    STITCHED_DUAL_CONTOURING,
+    ADAPTIVE_SURFACE_NETS
+};
 
 struct ChunkComparator {
     bool operator()(const VoxelOctreeNode *a, const VoxelOctreeNode *b) const {
@@ -40,6 +46,8 @@ class MeshComputeScheduler
     // Debug variables
     int _totalTris;
     int _prevTris;
+
+    MeshAlgorithm _meshAlgorithm = MeshAlgorithm::STITCHED_SURFACE_NETS;    
 
     void process_queue(JarVoxelTerrain &terrain);
     void run_task(const JarVoxelTerrain &terrain, VoxelOctreeNode &chunk);

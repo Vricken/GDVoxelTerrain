@@ -2,7 +2,7 @@
 #define VOXEL_TERRAIN_H
 
 #include "mesh_compute_scheduler.h"
-#include "modify_settings.h"
+#include "sdf_modification.h"
 #include "signed_distance_field.h"
 #include "terrain_detail.h"
 #include "voxel_lod.h"
@@ -96,9 +96,8 @@ class JarVoxelTerrain : public Node3D
   public:
     JarVoxelTerrain();
 
-    void modify(const Ref<JarSignedDistanceField> sdf, const SDF::Operation operation, const Vector3 &position,
-                const float radius);
-    void sphere_edit(const Vector3 &position, const float radius, bool operation_union);
+    void modify_using_sdf(const Ref<JarSdfModification> sdf);
+    // void sphere_edit(const Vector3 &position, const float radius, bool operation_union);
 
     void spawn_debug_spheres_in_bounds(const Vector3 &position, const float range);
 
@@ -111,6 +110,8 @@ class JarVoxelTerrain : public Node3D
     // properties
     bool is_building() const;
     // MeshComputeScheduler *get_mesh_scheduler() const;
+
+    bool need_normals() const { return false; } //for dual contouring
 
     // properties
     Node3D *get_player_node() const;
@@ -175,7 +176,5 @@ class JarVoxelTerrain : public Node3D
     void set_terrain_details(const TypedArray<JarTerrainDetail> &details);
     TypedArray<JarTerrainDetail> get_terrain_details() const;
 };
-
-VARIANT_ENUM_CAST(SDF::Operation);
 
 #endif // VOXEL_TERRAIN_H

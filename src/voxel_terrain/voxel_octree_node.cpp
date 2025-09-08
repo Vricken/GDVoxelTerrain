@@ -39,7 +39,8 @@ void VoxelOctreeNode::set_dirty(bool value)
     _isDirty = value;
 }
 
-// todo, make threadsafe. It's currently maybe fine (due to the way the scheduler is set up), but better safe than sorry.
+// todo, make threadsafe. It's currently maybe fine (due to the way the scheduler is set up), but better safe than
+// sorry.
 void VoxelOctreeNode::update_if_dirty()
 {
     if (!is_dirty())
@@ -53,15 +54,15 @@ void VoxelOctreeNode::update_if_dirty()
 
         for (auto &child : (*_children))
         {
-            _value     += child->get_value();
+            _value += child->get_value();
             _nodeColor += child->get_color();
-            _normal    += child->get_normal();
+            _normal += child->get_normal();
         }
 
         // Average over 8 children
-        _value     *= 0.125f;
+        _value *= 0.125f;
         _nodeColor *= 0.125f;
-        _normal    = glm::normalize(_normal * 0.125f);
+        _normal = glm::normalize(_normal * 0.125f);
     }
 
     _isDirty = false;
@@ -84,7 +85,6 @@ glm::vec3 VoxelOctreeNode::get_normal()
     update_if_dirty();
     return _normal;
 }
-
 
 int VoxelOctreeNode::get_lod() const
 {
@@ -213,9 +213,8 @@ inline bool VoxelOctreeNode::should_delete_chunk(const JarVoxelTerrain &terrain)
 
 inline uint16_t VoxelOctreeNode::compute_boundaries(const JarVoxelTerrain &terrain) const
 {
-    static const std::vector<glm::vec3> offsets = {glm::vec3(1, 0, 0), glm::vec3(-1, 0, 0),
-        glm::vec3(0, 1, 0), glm::vec3(0, -1, 0),
-        glm::vec3(0, 0, 1), glm::vec3(0, 0, -1)};
+    static const std::vector<glm::vec3> offsets = {glm::vec3(1, 0, 0),  glm::vec3(-1, 0, 0), glm::vec3(0, 1, 0),
+                                                   glm::vec3(0, -1, 0), glm::vec3(0, 0, 1),  glm::vec3(0, 0, -1)};
 
     uint16_t boundaries = 0;
     const float el = edge_length(terrain.get_octree_scale());
@@ -238,7 +237,7 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
     if (!_isGenerated)
     {
         float value = terrain.get_sdf()->distance(_center);
-        glm::vec3 normal = terrain.get_sdf()->normal(_center);
+        glm::vec3 normal = terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f);
         set_value(value, normal);
         if (has_surface(terrain, value) && (_size > LoD))
         {
@@ -253,7 +252,7 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
             return;
         }
     }
- 
+
     if (is_chunk(terrain) && !is_leaf() &&
         (_chunk == nullptr || (_chunk->get_boundaries() != compute_boundaries(terrain))))
         queue_update(terrain);
@@ -270,14 +269,14 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
 bool VoxelOctreeNode::has_surface(const JarVoxelTerrain &terrain, const float value)
 {
     //(3*(1/2)^3)^(1/3) = 1.44224957 for d instead of r
-    return std::abs(value) < (1 << _size) * terrain.get_octree_scale() * 1.44224957f * 1.75f; 
+    return std::abs(value) < (1 << _size) * terrain.get_octree_scale() * 1.44224957f * 1.75f;
 }
 
 void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const ModifySettings &settings)
 {
     if (settings.sdf.is_null())
     {
-        UtilityFunctions::print("sdf invalid");
+        UtilityFunctions::print("sdf settings invalid");
         return;
     }
 
@@ -287,24 +286,34 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
 
     LoD = terrain.desired_lod(*this);
     if (!_isGenerated)
-        set_value(terrain.get_sdf()->distance(_center), terrain.get_sdf()->normal(_center));
+        set_value(terrain.get_sdf()->distance(_center),
+                  terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f));
 
     float old_value = get_value();
-    glm::vec3 old_normal = get_normal();
-    float sdf_value = settings.sdf->distance(_center - settings.position);
-    glm::vec3 sdf_normal = settings.sdf->normal(_center - settings.position);
+    float sdf_value = settings.sdf->distance(settings.to_local(_center));
+    float new_value;
+    glm::vec3 new_normal = get_normal();
 
-    float new_value; glm::vec3 new_normal; 
-    SDF::apply_operation(settings.operation, old_value, old_normal, sdf_value, sdf_normal, terrain.get_octree_scale(), new_value, new_normal);
+    if (terrain.need_normals())
+    {
+        glm::vec3 old_normal = get_normal();
+        glm::vec3 sdf_normal = settings.sdf->normal(settings.to_local(_center));
+        SDF::apply_operation(settings.operation, old_value, old_normal, sdf_value, sdf_normal,
+                             settings.smooth_k, new_value, new_normal);
+    }
+    else
+    {
+        new_value = SDF::apply_operation(settings.operation, old_value, sdf_value, settings.smooth_k);
+    }
 
     // ensure the node has children if it contains a surface
     if (has_surface(terrain, new_value)) // || has_surface(terrain, sdf_value)
         subdivide(terrain.get_octree_scale());
-    else
-        if(settings.bounds.encloses(bounds))
-            prune_children();
+    else if (settings.bounds.encloses(bounds))
+        prune_children();
 
     set_value(new_value, new_normal);
+    _isModified = true;
     _isGenerated = true;
     if (std::abs(new_value - old_value) > 0.01f)
         _nodeColor = glm::vec4(1, 0, 0, 1);
