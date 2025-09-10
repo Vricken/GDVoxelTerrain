@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dopxpjgtfffh4"]
+[gd_scene load_steps=18 format=3 uid="uid://dopxpjgtfffh4"]
 
 [ext_resource type="PackedScene" uid="uid://c7kqgl1k10x14" path="res://addons/jar_voxel_terrain/src/chunk.tscn" id="1_0cm30"]
 [ext_resource type="Script" uid="uid://c0626baj7yc8l" path="res://demo/movable_camera.gd" id="2_kdd2p"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://bek13g43nt3gk" path="res://demo/post_processing/atmosphere/post_processing_atmosphere.gd" id="4_s1s6j"]
 [ext_resource type="Material" uid="uid://55tbedv6qxva" path="res://demo/assets/space/space_sky.tres" id="6_onvmd"]
 [ext_resource type="Script" uid="uid://bhjsuh0weeh6j" path="res://demo/label.gd" id="8_onvmd"]
+[ext_resource type="ArrayMesh" uid="uid://cn84hrrf1lg4q" path="res://demo/assets/suzanne_closed.obj" id="8_ykvhj"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_onvmd"]
 radius = 4075.0
@@ -30,11 +31,12 @@ metadata/_custom_type_script = "uid://bek13g43nt3gk"
 [sub_resource type="Compositor" id="Compositor_4sdup"]
 compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_onu7k")])
 
-[sub_resource type="JarSphereSdf" id="JarSphereSdf_oeqrt"]
-radius = 15.0
+[sub_resource type="JarMeshSdf" id="JarMeshSdf_ykvhj"]
+mesh = ExtResource("8_ykvhj")
+transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 50, 0, 0, 0)
 
 [sub_resource type="JarSdfModification" id="JarSdfModification_ykvhj"]
-sdf = SubResource("JarSphereSdf_oeqrt")
+sdf = SubResource("JarMeshSdf_ykvhj")
 
 [sub_resource type="Sky" id="Sky_s1s6j"]
 sky_material = ExtResource("6_onvmd")
@@ -56,8 +58,6 @@ world_node = NodePath("..")
 size = 20
 chunk_scene = ExtResource("1_0cm30")
 sdf = ExtResource("2_onu7k")
-performance_updated_colliders_per_second = 256
-lod_automatic_update_distance = 32.0
 population_terrain_details = Array[JarTerrainDetail]([ExtResource("3_onvmd")])
 transform = Transform3D(1, 0, 0.000401426, 0, 1, 0, -0.000401426, 0, 1, 0, 0, 0)
 

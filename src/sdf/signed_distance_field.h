@@ -44,6 +44,12 @@ class JarSignedDistanceField : public Resource
                               xxx * distance(pos + xxx));
     }
 
+    virtual inline void distance_and_normal(const glm::vec3 &pos, float &out_distance, glm::vec3 &out_normal) const
+    {
+        out_distance = distance(pos);
+        out_normal = normal(pos);
+    }
+
     virtual float distance(const glm::vec3 &pos) const = 0;
     virtual Bounds bounds() const = 0;
 

@@ -82,6 +82,14 @@ struct Bounds
         return Bounds(new_min, new_max);
     }
 
+    inline Bounds joined(const glm::vec3 &point) const
+    {
+        glm::vec3 new_min = glm::min(min_corner, point);
+        glm::vec3 new_max = glm::max(max_corner, point);
+        return Bounds(new_min, new_max);
+    }
+
+
     // assumption: other or this do not enclose each other.
     inline Bounds subtracted(const Bounds &other) const
     {

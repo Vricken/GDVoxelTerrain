@@ -10,6 +10,7 @@
 #include "terrain_detail.h"
 #include "terrain_populator.h"
 #include "terrain_sdf.h"
+#include "mesh_sdf.h"
 #include "transformed_sdf.h"
 #include "voxel_chunk.h"
 #include "voxel_terrain.h"
@@ -30,6 +31,7 @@ void initialize_jar_voxel_terrain_module(ModuleInitializationLevel p_level)
         GDREGISTER_CLASS(JarTerrainSdf);
         GDREGISTER_CLASS(JarPlanetSdf);
         GDREGISTER_CLASS(JarTransformedSdf);
+        GDREGISTER_CLASS(JarMeshSdf);
 
         GDREGISTER_CLASS(JarSdfModification);
 

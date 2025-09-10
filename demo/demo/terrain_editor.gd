@@ -11,7 +11,7 @@ func _physics_process(delta: float) -> void:
 		_edit(false)
 		
 	edit_timer -= delta
-					   
+
 func _edit(union : bool):
 	if(edit_timer > 0):
 		return;
