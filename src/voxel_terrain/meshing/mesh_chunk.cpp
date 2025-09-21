@@ -4,20 +4,18 @@
 
 using namespace godot;
 
-#define LEAF_COUNT 16.0f
-
 const std::vector<glm::ivec3> MeshChunk::Offsets = {
     glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0), glm::ivec3(0, 1, 0), glm::ivec3(1, 1, 0),
     glm::ivec3(0, 0, 1), glm::ivec3(1, 0, 1), glm::ivec3(0, 1, 1), glm::ivec3(1, 1, 1)};
 
-const std::vector<Bounds> MeshChunk::RingBounds = {
-    Bounds(glm::vec3(0, -0.5f, -0.5f) + glm::vec3(-2 / LEAF_COUNT),
-           glm::vec3(0, 0.5f, 0.5f) + glm::vec3(2 / LEAF_COUNT)), // x
-    Bounds(glm::vec3(-0.5f, 0, -0.5f) + glm::vec3(-2 / LEAF_COUNT),
-           glm::vec3(0.5f, 0, 0.5f) + glm::vec3(2 / LEAF_COUNT)), // y
-    Bounds(glm::vec3(-0.5f, -0.5f, 0) + glm::vec3(-2 / LEAF_COUNT),
-           glm::vec3(0.5f, 0.5f, 0) + glm::vec3(2 / LEAF_COUNT)), // z
-};
+// const std::vector<Bounds> MeshChunk::RingBounds = {
+//     Bounds(glm::vec3(0, -0.5f, -0.5f) + glm::vec3(-2 / leaf_count),
+//            glm::vec3(0, 0.5f, 0.5f) + glm::vec3(2 / leaf_count)), // x
+//     Bounds(glm::vec3(-0.5f, 0, -0.5f) + glm::vec3(-2 / leaf_count),
+//            glm::vec3(0.5f, 0, 0.5f) + glm::vec3(2 / leaf_count)), // y
+//     Bounds(glm::vec3(-0.5f, -0.5f, 0) + glm::vec3(-2 / leaf_count),
+//            glm::vec3(0.5f, 0.5f, 0) + glm::vec3(2 / leaf_count)), // z
+// };
 
 const std::vector<glm::ivec4> MeshChunk::RingQuadChecks = {
     glm::ivec4(1, 5, 3, 7), // positive x
@@ -47,8 +45,19 @@ const std::vector<glm::ivec3> MeshChunk::XyOffsets = {glm::ivec3(0, 0, 0), glm::
 
 const std::vector<std::vector<glm::ivec3>> MeshChunk::FaceOffsets = {YzOffsets, XzOffsets, XyOffsets};
 
-MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk)
+MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk) : leaf_count(static_cast<float>(terrain.get_chunk_size()))
 {
+    ChunkRes = terrain.get_chunk_size() + 2;
+    LargestPos = ChunkRes - 1;
+    RingBounds = {
+        Bounds(glm::vec3(0, -0.5f, -0.5f) + glm::vec3(-2.0f / leaf_count),
+               glm::vec3(0,  0.5f,  0.5f) + glm::vec3( 2.0f / leaf_count)),
+        Bounds(glm::vec3(-0.5f, 0, -0.5f) + glm::vec3(-2.0f / leaf_count),
+               glm::vec3( 0.5f, 0,  0.5f) + glm::vec3( 2.0f / leaf_count)),
+        Bounds(glm::vec3(-0.5f, -0.5f, 0) + glm::vec3(-2.0f / leaf_count),
+               glm::vec3( 0.5f,  0.5f, 0) + glm::vec3( 2.0f / leaf_count))
+    };
+
     glm::vec3 chunkCenter = chunk._center;
     auto cameraPosition = terrain.get_camera_position();
     // if(chunk.LoD > 0 ) return;
@@ -117,7 +126,7 @@ MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chun
             Bounds b = (RingBounds[i / 2] * edge_length) + (chunkCenter + edge);
             acceptance_bounds = acceptance_bounds.joined(b);
 
-            glm::vec3 difference = (edge_length * 2.0f / LEAF_COUNT) * glm::abs(CheckLodOffsets[i]);
+            glm::vec3 difference = (edge_length * 2.0f / leaf_count) * glm::abs(CheckLodOffsets[i]);
             if (i % 2 == 0)
                 rejection_bounds.max_corner -= difference;
             else
@@ -140,7 +149,7 @@ MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chun
         if (ringNodeCount <= 0)
             return;
         // should be based on full ring mode, i.e. -5 to 5 nodes
-        glm::vec3 minPos = chunkCenter - 10 / LEAF_COUNT * edge_length;
+        glm::vec3 minPos = chunkCenter - 10 / leaf_count * edge_length;
         glm::ivec3 clampMax = glm::ivec3(9);
         glm::vec3 minRecPos = glm::vec3(3875439875983);
         glm::vec3 maxRecPos = glm::vec3(-3875439875983);

@@ -51,12 +51,12 @@ class JarVoxelTerrain : public Node3D
     // Exported variables
     float _octreeScale = 1.0f;
     int _size = 8;
-    int _minChunkSize = 4; // each chunk is 2^4 = 16*16*16 voxels
+    int _chunk_size_log2 = 4; // each chunk is 2^4 = 16*16*16 voxels
+    int _chunkSize = 16;
 
     Ref<PackedScene> _chunkScene;
 
     bool _isBuilding = false;
-    int _chunkSize = 0;
     bool _cubicVoxels = false;
 
     // PERFORMANCE
@@ -130,8 +130,8 @@ class JarVoxelTerrain : public Node3D
     int get_size() const;
     void set_size(int value);
 
-    int get_min_chunk_size() const;
-    void set_min_chunk_size(int value);
+    int get_chunk_size_log2() const;
+    void set_chunk_size_log2(int value);
 
     int get_chunk_size() const;
 

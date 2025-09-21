@@ -155,22 +155,22 @@ JarVoxelChunk *VoxelOctreeNode::get_chunk() const
 
 inline bool VoxelOctreeNode::is_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size == (LoD + terrain.get_min_chunk_size());
+    return _size == (LoD + terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_above_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size > (LoD + terrain.get_min_chunk_size());
+    return _size > (LoD + terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_above_min_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size > (terrain.get_min_chunk_size());
+    return _size > (terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_one_above_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size == (LoD + terrain.get_min_chunk_size() + 1);
+    return _size == (LoD + terrain.get_chunk_size_log2() + 1);
 }
 
 void VoxelOctreeNode::populateUniqueLoDValues(std::vector<int> &lodValues) const

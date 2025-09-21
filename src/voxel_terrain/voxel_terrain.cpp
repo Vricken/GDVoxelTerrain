@@ -24,9 +24,9 @@ void JarVoxelTerrain::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_size", "value"), &JarVoxelTerrain::set_size);
     ADD_PROPERTY(PropertyInfo(Variant::INT, "size"), "set_size", "get_size");
 
-    ClassDB::bind_method(D_METHOD("get_min_chunk_size"), &JarVoxelTerrain::get_min_chunk_size);
-    ClassDB::bind_method(D_METHOD("set_min_chunk_size", "value"), &JarVoxelTerrain::set_min_chunk_size);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "min_chunk_size"), "set_min_chunk_size", "get_min_chunk_size");
+    ClassDB::bind_method(D_METHOD("get_chunk_size_log2"), &JarVoxelTerrain::get_chunk_size_log2);
+    ClassDB::bind_method(D_METHOD("set_chunk_size_log2", "value"), &JarVoxelTerrain::set_chunk_size_log2);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "chunk_size_log2"), "set_chunk_size_log2", "get_chunk_size_log2");
 
     ClassDB::bind_method(D_METHOD("get_chunk_scene"), &JarVoxelTerrain::get_chunk_scene);
     ClassDB::bind_method(D_METHOD("set_chunk_scene", "value"), &JarVoxelTerrain::set_chunk_scene);
@@ -103,7 +103,7 @@ void JarVoxelTerrain::_bind_methods()
 
 JarVoxelTerrain::JarVoxelTerrain() : _octreeScale(1.0f), _size(14), _playerNode(nullptr)
 {
-    _chunkSize = (1 << _minChunkSize);
+    _chunkSize = (1 << _chunk_size_log2);
 }
 
 void JarVoxelTerrain::modify_using_sdf(const Ref<JarSdfModification> sdf)
@@ -208,14 +208,14 @@ void JarVoxelTerrain::set_size(int value)
     _size = value;
 }
 
-int JarVoxelTerrain::get_min_chunk_size() const
+int JarVoxelTerrain::get_chunk_size_log2() const
 {
-    return _minChunkSize;
+    return _chunk_size_log2;
 }
 
-void JarVoxelTerrain::set_min_chunk_size(int value)
+void JarVoxelTerrain::set_chunk_size_log2(int value)
 {
-    _minChunkSize = value;
+    _chunk_size_log2 = value;
 }
 
 int JarVoxelTerrain::get_chunk_size() const
@@ -350,9 +350,9 @@ void JarVoxelTerrain::initialize()
         UtilityFunctions::printerr("No sdf, please provide it.");
         return;
     }
-    _chunkSize = (1 << _minChunkSize);
+    _chunkSize = (1 << _chunk_size_log2);
     _voxelLod =
-        JarVoxelLoD(_lod_automatic_update, _lod_automatic_update_distance, _lod_level_count, _lod_shell_size, _octreeScale);
+        JarVoxelLoD(_lod_automatic_update, _lod_automatic_update_distance, _lod_level_count, _lod_shell_size, _octreeScale, _chunkSize);
     _meshComputeScheduler = std::make_unique<MeshComputeScheduler>(_maxConcurrentTasks);
     _voxelRoot = std::make_unique<VoxelOctreeNode>(_size);
     //_populationRoot = memnew(PopulationOctreeNode(_size));

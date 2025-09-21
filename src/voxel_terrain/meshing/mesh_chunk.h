@@ -16,7 +16,7 @@ class JarVoxelTerrain;
 class MeshChunk
 {
   public:
-    static const std::vector<Bounds> RingBounds;
+    std::vector<Bounds> RingBounds;
     static const std::vector<glm::vec3> CheckLodOffsets;
     static const std::vector<glm::ivec4> RingQuadChecks;
     static const std::vector<glm::ivec3> Offsets;
@@ -25,6 +25,8 @@ class MeshChunk
     static const std::vector<glm::ivec3> XzOffsets;
     static const std::vector<glm::ivec3> XyOffsets;
     static const std::vector<std::vector<glm::ivec3>> FaceOffsets;
+
+    const float leaf_count = 32.0;
 
     bool should_have_quad(const glm::ivec3 &position, const int face) const;
     bool on_positive_edge(const glm::ivec3 &position) const;
@@ -104,8 +106,8 @@ class MeshChunk
   private:
     glm::vec3 half_leaf_size;
     float leaf_size;
-    const static int ChunkRes = 16 + 2;
-    const static int LargestPos = ChunkRes - 1;
+    int ChunkRes = 16 + 2;
+    int LargestPos = ChunkRes - 1;
     std::vector<int> _leavesLut; //maps position to index in nodes
     // chunk boundaries, 6 bits each: 0,0,-z,z,-y,y,-x,x
 

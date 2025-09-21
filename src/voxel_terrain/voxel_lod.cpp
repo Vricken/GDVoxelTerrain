@@ -9,9 +9,9 @@ JarVoxelLoD::JarVoxelLoD()
 {
 }
 
-JarVoxelLoD::JarVoxelLoD(const bool automaticUpdate, const float automaticUpdateDistance, const int lodLevelCount, const int shellSize, const float octreeScale)
+JarVoxelLoD::JarVoxelLoD(const bool automaticUpdate, const float automaticUpdateDistance, const int lodLevelCount, const int shellSize, const float octreeScale, const int chunk_size)
     : _automaticUpdate(automaticUpdate), _automaticUpdateDistance(automaticUpdateDistance), _lodLevelCount(lodLevelCount), _shellSize(shellSize), _octreeScale(octreeScale),
-       _autoMeshCoolDown(0.0f), _cameraPosition(0.0f, 0.0f, 0.0f)
+       _autoMeshCoolDown(0.0f), _cameraPosition(0.0f, 0.0f, 0.0f), _rChunkSize(1.0f / chunk_size)
 {
 }
 
@@ -71,9 +71,8 @@ inline bool JarVoxelLoD::is_in_lod_shell(int lod, glm::vec3 pos, glm::vec3 cam_p
 }
 
 inline int JarVoxelLoD::lod_at(const glm::vec3 &position) const {
-    constexpr float rChunksize = 1.0f / 16.0f;
-    glm::vec3 pos = position * rChunksize;
-    glm::vec3 cam_pos = _cameraPosition * rChunksize;
+    glm::vec3 pos = position * _rChunkSize;
+    glm::vec3 cam_pos = _cameraPosition * _rChunkSize;
 
     //OLD: use for loop
     // for (int lod = 0; lod < _lodLevelCount; ++lod) {
