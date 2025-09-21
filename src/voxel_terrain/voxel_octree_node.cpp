@@ -18,7 +18,7 @@ VoxelOctreeNode::VoxelOctreeNode(VoxelOctreeNode *parent, const glm::vec3 center
         LoD = _parent->LoD;
         _value = _parent->get_value();
         _isGenerated = _parent->_isGenerated;
-        _nodeColor = _parent->_nodeColor;
+        _material_index = _parent->_material_index;
     }
 }
 
@@ -51,19 +51,34 @@ void VoxelOctreeNode::update_if_dirty()
     if (!is_leaf())
     {
         _value = 0.0f;
-        _nodeColor = glm::vec4(0.0f);
+        _material_index = _children->at(0)->_material_index;
         _normal = glm::vec3(0.0f);
 
+        int materialCount = 0;
+        int alternative_material_index = 0;
+        int solid_count = 0;
+
         for (auto &child : (*_children))
-        {
-            _value += child->get_value();
-            _nodeColor += child->get_color();
+        {            
+            auto childValue = child->get_value();
+            _value += childValue;
+            
+            if (childValue < 0) {
+                solid_count++;
+                auto child_material_index = child->get_material_index();
+                if(child_material_index== _material_index)
+                    materialCount++;
+                else
+                    alternative_material_index = child_material_index;
+            }
+
+            
             _normal += child->get_normal();
         }
 
         // Average over 8 children
         _value *= 0.125f;
-        _nodeColor *= 0.125f;
+        _material_index = (materialCount > solid_count / 2) ? _material_index : alternative_material_index;
         _normal = glm::normalize(_normal * 0.125f);
     }
 
@@ -76,10 +91,10 @@ float VoxelOctreeNode::get_value()
     return _value;
 }
 
-glm::vec4 VoxelOctreeNode::get_color()
+int VoxelOctreeNode::get_material_index()
 {
     update_if_dirty();
-    return _nodeColor;
+    return _material_index;
 }
 
 glm::vec3 VoxelOctreeNode::get_normal()
@@ -93,10 +108,11 @@ int VoxelOctreeNode::get_lod() const
     return LoD;
 }
 
-void VoxelOctreeNode::set_value(float value, glm::vec3 normal)
+void VoxelOctreeNode::set_value(float value, glm::vec3 normal, int material_index)
 {
     _value = value;
     _normal = normal;
+    _material_index = material_index;
     _isDirty = false;
     if (_parent != nullptr)
     {
@@ -240,7 +256,7 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
     {
         float value = terrain.get_sdf()->distance(_center);
         glm::vec3 normal = terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f);
-        set_value(value, normal);
+        set_value(value, normal, 0);
         if (has_surface(terrain, value) && (_size > LoD))
         {
             subdivide(terrain.get_octree_scale());
@@ -289,23 +305,24 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
     LoD = terrain.desired_lod(*this);
     if (!_isGenerated)
         set_value(terrain.get_sdf()->distance(_center),
-                  terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f));
+                  terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f), 0);
 
     float old_value = get_value();
     float sdf_value = settings.sdf->distance(settings.to_local(_center));
     float new_value;
+    float blend_factor = 0.0f;
     glm::vec3 new_normal = get_normal();
 
     if (terrain.need_normals())
     {
         glm::vec3 old_normal = get_normal();
         glm::vec3 sdf_normal = settings.sdf->normal(settings.to_local(_center));
-        SDF::apply_operation(settings.operation, old_value, old_normal, sdf_value, sdf_normal,
-                             settings.smooth_k, new_value, new_normal);
+        new_value = SDF::apply_operation(settings.operation, old_value, old_normal, sdf_value, sdf_normal,
+                             settings.smooth_k, new_normal, blend_factor);
     }
     else
     {
-        new_value = SDF::apply_operation(settings.operation, old_value, sdf_value, settings.smooth_k);
+        new_value = SDF::apply_operation(settings.operation, old_value, sdf_value, settings.smooth_k, blend_factor);
     }
 
     // ensure the node has children if it contains a surface
@@ -314,11 +331,11 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
     else if (settings.bounds.encloses(bounds))
         prune_children();
 
-    set_value(new_value, new_normal);
+    set_value(new_value, new_normal, blend_factor < 0.5f ? settings.material_index : get_material_index());
     _isModified = true;
     _isGenerated = true;
-    if (std::abs(new_value - old_value) > 0.01f)
-        _nodeColor = glm::vec4(1, 0, 0, 1);
+    // if (std::abs(new_value - old_value) > 0.01f)
+    //     _nodeColor = glm::vec4(1, 0, 0, 1);
 
     if (is_leaf())
         mark_materialized();

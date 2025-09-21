@@ -19,16 +19,7 @@ void JarVoxelChunk::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "collision_shape", PROPERTY_HINT_NODE_TYPE, "CollisionShape3D"),
                  "set_collision_shape", "get_collision_shape");
 
-    ClassDB::bind_method(D_METHOD("get_static_body"), &JarVoxelChunk::get_static_body);
-    ClassDB::bind_method(D_METHOD("set_static_body", "static_body"), &JarVoxelChunk::set_static_body);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "static_body", PROPERTY_HINT_NODE_TYPE, "StaticBody3D"),
-                 "set_static_body", "get_static_body");
-
-    ClassDB::bind_method(D_METHOD("get_collider_lod_threshold"), &JarVoxelChunk::get_collider_lod_threshold);
-    ClassDB::bind_method(D_METHOD("set_collider_lod_threshold", "collider_lod_threshold"),
-                         &JarVoxelChunk::set_collider_lod_threshold);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "collider_lod_threshold"), "set_collider_lod_threshold",
-                 "get_collider_lod_threshold");
+    ClassDB::bind_method(D_METHOD("get_terrain"), &JarVoxelChunk::get_terrain);
 }
 
 void JarVoxelChunk::_update_multi_mesh_instances(int n)
@@ -76,15 +67,6 @@ void JarVoxelChunk::set_lod(int p_lod)
     lod = p_lod;
 }
 
-int JarVoxelChunk::get_collider_lod_threshold() const
-{
-    return collider_lod_threshold;
-}
-
-void JarVoxelChunk::set_collider_lod_threshold(int p_collider_lod_threshold)
-{
-    collider_lod_threshold = p_collider_lod_threshold;
-}
 
 uint8_t JarVoxelChunk::get_boundaries() const
 {
@@ -126,16 +108,6 @@ void JarVoxelChunk::set_collision_shape(CollisionShape3D *p_collision_shape)
     collision_shape = p_collision_shape;
 }
 
-StaticBody3D *JarVoxelChunk::get_static_body() const
-{
-    return static_body;
-}
-
-void JarVoxelChunk::set_static_body(StaticBody3D *p_static_body)
-{
-    static_body = p_static_body;
-}
-
 Ref<ArrayMesh> JarVoxelChunk::get_array_mesh() const
 {
     return array_mesh;
@@ -169,6 +141,7 @@ void JarVoxelChunk::set_material(Ref<ShaderMaterial> p_material)
 
 void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ChunkMeshData *chunk_mesh_data)
 {
+    _terrain = &terrain;
     _chunk_mesh_data = chunk_mesh_data;
     array_mesh = Ref<ArrayMesh>(Object::cast_to<ArrayMesh>(*mesh_instance->get_mesh()));
     concave_polygon_shape =
@@ -186,7 +159,7 @@ void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node
     array_mesh->clear_surfaces();
     array_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, chunk_mesh_data->mesh_array);
 
-    bool generate_collider = lod <= collider_lod_threshold;
+    bool generate_collider = lod <= terrain.get_collider_max_lod_threshold();
 
     if (generate_collider)
     {

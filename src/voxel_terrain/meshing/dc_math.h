@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DC_MATH_H
+#define DC_MATH_H
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -29,5 +30,6 @@ struct QEF {
 glm::vec3 clamp_to_cell(const std::vector<glm::vec3>& pts, const glm::vec3& x);
 
 int face_bit_from_vals(float v0, float v1);
-int pack_face_dirs(const std::vector<int>& N, const class StitchedMeshChunk* mc);
+int pack_face_dirs(const std::vector<int>& N, const class MeshChunk* mc);
 }
+#endif // DC_MATH_H

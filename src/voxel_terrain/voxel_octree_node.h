@@ -29,12 +29,12 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
 
     JarVoxelChunk *_chunk = nullptr;   
 
-    glm::vec4 _nodeColor{0, 0, 0, 0}; // for material
+    int _material_index = 0;
     glm::vec3 _normal{0, 0, 0};
 
     bool is_dirty() const;
     void set_dirty(bool value);
-    void set_value(float value, glm::vec3 normal);
+    void set_value(float value, glm::vec3 normal, int material_index);
 
     // idea to not explore the whole tree, but only the children that are not materialized
     void mark_materialized();
@@ -84,7 +84,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
     float get_value();
     glm::vec3 get_normal();
     int get_lod() const;
-    glm::vec4 get_color();
+    int get_material_index();
 
     // private:
 

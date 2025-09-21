@@ -62,6 +62,7 @@ class JarVoxelTerrain : public Node3D
     // PERFORMANCE
     int _maxConcurrentTasks = 12;
     int _updatedCollidersPerSecond = 128;
+    int _collider_max_lod_threshold = 1;
 
     // LOD
     JarVoxelLoD _voxelLod;
@@ -146,6 +147,9 @@ class JarVoxelTerrain : public Node3D
 
     int get_updated_colliders_per_second() const;
     void set_updated_colliders_per_second(int value);
+
+    int get_collider_max_lod_threshold() const;
+    void set_collider_max_lod_threshold(int value);
 
     // LOD
 

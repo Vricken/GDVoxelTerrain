@@ -13,7 +13,7 @@ namespace godot {
 
 class JarVoxelTerrain;
 
-class StitchedMeshChunk
+class MeshChunk
 {
   public:
     static const std::vector<Bounds> RingBounds;
@@ -36,7 +36,7 @@ class StitchedMeshChunk
     bool get_ring_neighbours(const glm::ivec3 &pos, std::vector<int> &result) const;
     bool should_have_boundary_quad(const std::vector<int> &neighbours, const bool on_ring) const;
 
-    StitchedMeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk);
+    MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk);
 
     bool is_edge_chunk() const
     {

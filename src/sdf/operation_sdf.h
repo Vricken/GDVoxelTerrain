@@ -36,7 +36,8 @@ public:
 
         float da = _a->distance(pos);
         float db = _b->distance(pos);
-        return SDF::apply_operation(_operation, da, db, _smoothK);
+        float out_factor;
+        return SDF::apply_operation(_operation, da, db, _smoothK, out_factor);
     }
 
     virtual glm::vec3 normal(const glm::vec3 &pos) const override
@@ -49,9 +50,9 @@ public:
         glm::vec3 na = _a->normal(pos);
         glm::vec3 nb = _b->normal(pos);
 
-        float outValue;
         glm::vec3 outNormal;
-        SDF::apply_operation(_operation, da, na, db, nb, _smoothK, outValue, outNormal);
+        float out_factor;
+        float outValue = SDF::apply_operation(_operation, da, na, db, nb, _smoothK, outNormal, out_factor);
         return outNormal;
     }
 

@@ -53,6 +53,8 @@ func align_with_y(xform: Transform3D, new_y: Vector3) -> Transform3D:
 	xform.basis.y = new_y
 	xform.basis.x = -xform.basis.z.cross(new_y)
 	xform.basis = xform.basis.orthonormalized()
+	if !xform.basis.determinant():
+		xform.basis = Basis.IDENTITY
 	return xform
 
 func _physics_process(delta: float) -> void:
@@ -95,9 +97,9 @@ func _process_fly(_delta: float) -> void:
 	var right = camera.global_basis.x
 	var up = Vector3.ZERO
 	if Input.is_action_pressed("move_up"):
-		up = Vector3.UP
+		up = camera.global_basis.y
 	if Input.is_action_pressed("move_down"):
-		up = Vector3.DOWN
+		up = -camera.global_basis.y
 
 	var move_dir = (forward * input_vec.y + right * input_vec.x + up).normalized()
 	velocity = move_dir * fly_speed

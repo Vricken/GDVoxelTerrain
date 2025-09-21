@@ -19,22 +19,21 @@ namespace godot {
 class JarVoxelTerrain;
 class VoxelOctreeNode;
 
-class JarVoxelChunk : public Node3D
+class JarVoxelChunk : public StaticBody3D
 {
-    GDCLASS(JarVoxelChunk, Node3D);
+    GDCLASS(JarVoxelChunk, StaticBody3D);
 
   private:
     int lod = 0;
-    int collider_lod_threshold = 1;
     uint16_t boundaries = 0;
     bool edge_chunk = false;
     Bounds bounds;
 
     // node references
     ChunkMeshData* _chunk_mesh_data = nullptr;
+    JarVoxelTerrain* _terrain = nullptr;
     MeshInstance3D* mesh_instance = nullptr;
     CollisionShape3D* collision_shape = nullptr;
-    StaticBody3D* static_body = nullptr;
 
     // data containers
     Ref<ArrayMesh> array_mesh;
@@ -59,9 +58,6 @@ class JarVoxelChunk : public Node3D
     int get_lod() const;
     void set_lod(int p_lod);
 
-    int get_collider_lod_threshold() const;
-    void set_collider_lod_threshold(int p_collider_lod_threshold);
-
     uint8_t get_boundaries() const;
     void set_boundaries(uint8_t p_boundaries);
 
@@ -74,9 +70,6 @@ class JarVoxelChunk : public Node3D
     CollisionShape3D* get_collision_shape() const;
     void set_collision_shape(CollisionShape3D* p_collision_shape);
 
-    StaticBody3D* get_static_body() const;
-    void set_static_body(StaticBody3D* p_static_body);
-
     Ref<ArrayMesh> get_array_mesh() const;
     void set_array_mesh(Ref<ArrayMesh> p_array_mesh);
 
@@ -85,6 +78,8 @@ class JarVoxelChunk : public Node3D
 
     Ref<ShaderMaterial> get_material() const;
     void set_material(Ref<ShaderMaterial> p_material);
+
+    JarVoxelTerrain* get_terrain() const { return _terrain; }
 
     void update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ChunkMeshData *chunk_mesh_data);
     void update_collision_mesh();

@@ -1,4 +1,4 @@
-#include "stitched_mesh_chunk.h"
+#include "mesh_chunk.h"
 #include "voxel_terrain.h"
 #include "utils.h"
 
@@ -6,11 +6,11 @@ using namespace godot;
 
 #define LEAF_COUNT 16.0f
 
-const std::vector<glm::ivec3> StitchedMeshChunk::Offsets = {
+const std::vector<glm::ivec3> MeshChunk::Offsets = {
     glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0), glm::ivec3(0, 1, 0), glm::ivec3(1, 1, 0),
     glm::ivec3(0, 0, 1), glm::ivec3(1, 0, 1), glm::ivec3(0, 1, 1), glm::ivec3(1, 1, 1)};
 
-const std::vector<Bounds> StitchedMeshChunk::RingBounds = {
+const std::vector<Bounds> MeshChunk::RingBounds = {
     Bounds(glm::vec3(0, -0.5f, -0.5f) + glm::vec3(-2 / LEAF_COUNT),
            glm::vec3(0, 0.5f, 0.5f) + glm::vec3(2 / LEAF_COUNT)), // x
     Bounds(glm::vec3(-0.5f, 0, -0.5f) + glm::vec3(-2 / LEAF_COUNT),
@@ -19,7 +19,7 @@ const std::vector<Bounds> StitchedMeshChunk::RingBounds = {
            glm::vec3(0.5f, 0.5f, 0) + glm::vec3(2 / LEAF_COUNT)), // z
 };
 
-const std::vector<glm::ivec4> StitchedMeshChunk::RingQuadChecks = {
+const std::vector<glm::ivec4> MeshChunk::RingQuadChecks = {
     glm::ivec4(1, 5, 3, 7), // positive x
     glm::ivec4(0, 2, 4, 6), // negative x
     glm::ivec4(2, 3, 6, 7), // positive y
@@ -28,26 +28,26 @@ const std::vector<glm::ivec4> StitchedMeshChunk::RingQuadChecks = {
     glm::ivec4(0, 1, 2, 3)  // negative z
 };
 
-const std::vector<glm::vec3> StitchedMeshChunk::CheckLodOffsets = {glm::vec3(1, 0, 0), glm::vec3(-1, 0, 0),
+const std::vector<glm::vec3> MeshChunk::CheckLodOffsets = {glm::vec3(1, 0, 0), glm::vec3(-1, 0, 0),
                                                                    glm::vec3(0, 1, 0), glm::vec3(0, -1, 0),
                                                                    glm::vec3(0, 0, 1), glm::vec3(0, 0, -1)};
 
-const std::vector<glm::ivec2> StitchedMeshChunk::Edges = {
+const std::vector<glm::ivec2> MeshChunk::Edges = {
     glm::ivec2(0, 1), glm::ivec2(2, 3), glm::ivec2(4, 5), glm::ivec2(6, 7), glm::ivec2(0, 2), glm::ivec2(1, 3),
     glm::ivec2(4, 6), glm::ivec2(5, 7), glm::ivec2(0, 4), glm::ivec2(1, 5), glm::ivec2(2, 6), glm::ivec2(3, 7)};
 
-const std::vector<glm::ivec3> StitchedMeshChunk::YzOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(0, 1, 0),
+const std::vector<glm::ivec3> MeshChunk::YzOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(0, 1, 0),
                                                               glm::ivec3(0, 0, 1), glm::ivec3(0, 1, 1)};
 
-const std::vector<glm::ivec3> StitchedMeshChunk::XzOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0),
+const std::vector<glm::ivec3> MeshChunk::XzOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0),
                                                               glm::ivec3(0, 0, 1), glm::ivec3(1, 0, 1)};
 
-const std::vector<glm::ivec3> StitchedMeshChunk::XyOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0),
+const std::vector<glm::ivec3> MeshChunk::XyOffsets = {glm::ivec3(0, 0, 0), glm::ivec3(1, 0, 0),
                                                               glm::ivec3(0, 1, 0), glm::ivec3(1, 1, 0)};
 
-const std::vector<std::vector<glm::ivec3>> StitchedMeshChunk::FaceOffsets = {YzOffsets, XzOffsets, XyOffsets};
+const std::vector<std::vector<glm::ivec3>> MeshChunk::FaceOffsets = {YzOffsets, XzOffsets, XyOffsets};
 
-StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk)
+MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chunk)
 {
     glm::vec3 chunkCenter = chunk._center;
     auto cameraPosition = terrain.get_camera_position();
@@ -165,7 +165,7 @@ StitchedMeshChunk::StitchedMeshChunk(const JarVoxelTerrain &terrain, const Voxel
     }
 }
 
-bool StitchedMeshChunk::should_have_quad(const glm::ivec3 &position, const int face) const
+bool MeshChunk::should_have_quad(const glm::ivec3 &position, const int face) const
 {
     // we might also need some cases for l2h chunks i think
     return true;
@@ -184,7 +184,7 @@ bool StitchedMeshChunk::should_have_quad(const glm::ivec3 &position, const int f
     }
 }
 
-bool StitchedMeshChunk::on_positive_edge(const glm::ivec3 &position) const
+bool MeshChunk::on_positive_edge(const glm::ivec3 &position) const
 {
     // we might also need some cases for l2h chunks i think
     return (((_lodH2LBoundaries & 0b1) != 0 && position.x >= LargestPos - 2) ? 1 : 0) +
@@ -193,7 +193,7 @@ bool StitchedMeshChunk::on_positive_edge(const glm::ivec3 &position) const
            2;
 }
 
-inline int StitchedMeshChunk::get_node_index_at(const glm::ivec3 &pos) const
+inline int MeshChunk::get_node_index_at(const glm::ivec3 &pos) const
 {
     if (pos.x < 0 || pos.x >= ChunkRes || pos.y < 0 || pos.y >= ChunkRes || pos.z < 0 || pos.z >= ChunkRes)
         return -1;
@@ -201,7 +201,7 @@ inline int StitchedMeshChunk::get_node_index_at(const glm::ivec3 &pos) const
         return (_leavesLut[pos.x + ChunkRes * (pos.y + ChunkRes * pos.z)] - 1);
 }
 
-bool StitchedMeshChunk::get_unique_neighbouring_vertices(const glm::ivec3 &pos, const std::vector<glm::ivec3> &offsets,
+bool MeshChunk::get_unique_neighbouring_vertices(const glm::ivec3 &pos, const std::vector<glm::ivec3> &offsets,
                                                          std::vector<int> &result) const
 {
     for (const auto &o : offsets)
@@ -217,9 +217,9 @@ bool StitchedMeshChunk::get_unique_neighbouring_vertices(const glm::ivec3 &pos, 
     return true;
 }
 
-bool StitchedMeshChunk::get_neighbours(const glm::ivec3 &pos, std::vector<int> &result) const
+bool MeshChunk::get_neighbours(const glm::ivec3 &pos, std::vector<int> &result) const
 {
-    for (const auto &o : StitchedMeshChunk::Offsets)
+    for (const auto &o : MeshChunk::Offsets)
     {
         auto n = get_node_index_at(pos + o);
         if (n < 0)
@@ -231,9 +231,9 @@ bool StitchedMeshChunk::get_neighbours(const glm::ivec3 &pos, std::vector<int> &
     return true;
 }
 
-bool StitchedMeshChunk::get_ring_neighbours(const glm::ivec3 &pos, std::vector<int> &result) const
+bool MeshChunk::get_ring_neighbours(const glm::ivec3 &pos, std::vector<int> &result) const
 {
-    for (const auto &o : StitchedMeshChunk::Offsets)
+    for (const auto &o : MeshChunk::Offsets)
     {
         auto it = _ringLut.find(pos + o); // Use find method
         if (it == _ringLut.end() || it->second < 0)
@@ -246,7 +246,7 @@ bool StitchedMeshChunk::get_ring_neighbours(const glm::ivec3 &pos, std::vector<i
 }
 
 // make sure that the sign of the 4 vertices closest the boundary is not the same
-bool StitchedMeshChunk::should_have_boundary_quad(const std::vector<int> &neighbours, const bool on_ring) const
+bool MeshChunk::should_have_boundary_quad(const std::vector<int> &neighbours, const bool on_ring) const
 {
     // if on ring, we check the other side. if not on ring, we check outward of the chunk
     for (size_t i = 0; i < CheckLodOffsets.size(); i++)

@@ -15,6 +15,7 @@ struct ModifySettings
     Bounds bounds;
     glm::vec3 position;
     SDFOperation operation;
+    int material_index = 1;
     float smooth_k = 1.0f;
 
     glm::vec3 to_local(const glm::vec3 &point) const

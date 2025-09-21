@@ -1,13 +1,6 @@
 extends Node3D
 
-@export var player : Player
-
-@export var terrain: JarVoxelTerrain
 @export var sdf_modification: JarSdfModification
-
-func _ready() -> void:
-	if player:
-		terrain = player.terrain
 
 var edit_timer = 0.0
 func _physics_process(delta: float) -> void:
@@ -27,8 +20,8 @@ func _edit(union : bool):
 	var space_state = get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(origin, origin + direction * 1000)
 	var result = space_state.intersect_ray(query)
-	if result:
+	if result.has("collider") and result.collider is JarVoxelChunk:
 		sdf_modification.operation = JarSdfModification.SDF_OPERATION_UNION if union else JarSdfModification.SDF_OPERATION_SUBTRACTION
 		sdf_modification.center = result.position
-		terrain.modify_using_sdf(sdf_modification)
+		result.collider.get_terrain().modify_using_sdf(sdf_modification)
 		#terrain.spawn_debug_spheres_in_bounds(result.position, 16)

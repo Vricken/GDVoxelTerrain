@@ -1,5 +1,5 @@
 #include "dc_math.h"
-#include "voxel_terrain/meshing/stitched_surface_nets/stitched_mesh_chunk.h"
+#include "voxel_terrain/meshing/mesh_chunk.h"
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -61,7 +61,7 @@ int godot::face_bit_from_vals(float v0, float v1) {
 }
 
 // NOTE: Update corner index pairs to match your corner indexing
-int godot::pack_face_dirs(const std::vector<int>& N, const StitchedMeshChunk* mc) {
+int godot::pack_face_dirs(const std::vector<int>& N, const MeshChunk* mc) {
     const float vx0 = mc->nodes[N[0]]->get_value();
     const float vx1 = mc->nodes[N[1]]->get_value();
     const float vy0 = mc->nodes[N[0]]->get_value();

@@ -56,6 +56,13 @@ void JarVoxelTerrain::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::INT, "performance_updated_colliders_per_second"),
                  "set_updated_colliders_per_second", "get_updated_colliders_per_second");
 
+    ClassDB::bind_method(D_METHOD("get_collider_max_lod_threshold"),
+                         &JarVoxelTerrain::get_collider_max_lod_threshold);
+    ClassDB::bind_method(D_METHOD("set_collider_max_lod_threshold", "value"),
+                         &JarVoxelTerrain::set_collider_max_lod_threshold);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "performance_collider_max_lod_threshold"),
+                 "set_collider_max_lod_threshold", "get_collider_max_lod_threshold");
+
     // -------------------------------------------------- LOD --------------------------------------------------
     ADD_GROUP("Level Of Detail", "lod_");
     ClassDB::bind_method(D_METHOD("get_lod_level_count"), &JarVoxelTerrain::get_lod_level_count);
@@ -252,6 +259,16 @@ int JarVoxelTerrain::get_updated_colliders_per_second() const
 void JarVoxelTerrain::set_updated_colliders_per_second(int value)
 {
     _updatedCollidersPerSecond = value;
+}
+
+int godot::JarVoxelTerrain::get_collider_max_lod_threshold() const
+{
+    return _collider_max_lod_threshold;
+}
+
+void godot::JarVoxelTerrain::set_collider_max_lod_threshold(int value)
+{
+    _collider_max_lod_threshold = value;
 }
 
 int JarVoxelTerrain::get_lod_level_count() const
