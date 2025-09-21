@@ -1,0 +1,60 @@
+[gd_scene load_steps=10 format=3 uid="uid://c6bsics61yvpd"]
+
+[ext_resource type="Script" uid="uid://02ob37nu5at8" path="res://demo/terrain_editor.gd" id="1_euw2q"]
+[ext_resource type="Script" uid="uid://knb5cuxdmiw5" path="res://demo/player.gd" id="1_giqk6"]
+[ext_resource type="Script" uid="uid://bek13g43nt3gk" path="res://demo/post_processing/atmosphere/post_processing_atmosphere.gd" id="2_yji6d"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yji6d"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_uuw2b"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("2_yji6d")
+position = Vector3(0, -4096, 0)
+radius = 4296.0
+metadata/_custom_type_script = "uid://bek13g43nt3gk"
+
+[sub_resource type="Compositor" id="Compositor_pdims"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_uuw2b")])
+
+[sub_resource type="JarSphereSdf" id="JarSphereSdf_oeqrt"]
+radius = 50.0
+
+[sub_resource type="JarSdfModification" id="JarSdfModification_giqk6"]
+sdf = SubResource("JarSphereSdf_oeqrt")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_uuw2b"]
+radius = 0.4
+height = 1.8
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_giqk6")
+
+[node name="CharacterBody3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_yji6d")
+
+[node name="YawPivot" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="YawPivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+compositor = SubResource("Compositor_pdims")
+far = 32000.0
+
+[node name="TerrainEditor" type="Node3D" parent="YawPivot/Camera3D" node_paths=PackedStringArray("player")]
+script = ExtResource("1_euw2q")
+player = NodePath("../../..")
+sdf_modification = SubResource("JarSdfModification_giqk6")
+
+[node name="Model" type="Node3D" parent="YawPivot"]
+
+[node name="Capsule" type="MeshInstance3D" parent="YawPivot/Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_uuw2b")
+skeleton = NodePath("../../..")

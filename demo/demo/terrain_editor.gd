@@ -1,7 +1,13 @@
 extends Node3D
 
+@export var player : Player
+
 @export var terrain: JarVoxelTerrain
 @export var sdf_modification: JarSdfModification
+
+func _ready() -> void:
+	if player:
+		terrain = player.terrain
 
 var edit_timer = 0.0
 func _physics_process(delta: float) -> void:
