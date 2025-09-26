@@ -1,7 +1,7 @@
 #include "voxel_chunk.h"
 #include "chunk_detail_generator.h"
-#include "voxel_terrain/voxel_terrain.h"
 #include "voxel_terrain/voxel_octree_node.h"
+#include "voxel_terrain/voxel_terrain.h"
 #include <godot_cpp/classes/sphere_mesh.hpp>
 #include <godot_cpp/classes/standard_material3d.hpp>
 
@@ -26,11 +26,13 @@ void JarVoxelChunk::_update_multi_mesh_instances(int n)
 {
     int count = multi_mesh_instances.size();
 
-    if(count == n) return;
-    if(count < n) {
+    if (count == n)
+        return;
+    if (count < n)
+    {
         for (int i = count; i < n; i++)
         {
-            MultiMeshInstance3D* multi_mesh_instance = memnew(MultiMeshInstance3D);
+            MultiMeshInstance3D *multi_mesh_instance = memnew(MultiMeshInstance3D);
             add_child(multi_mesh_instance);
             multi_mesh_instances.push_back(multi_mesh_instance);
             multi_mesh_instance->set_position(Vector3(0, 0, 0));
@@ -44,9 +46,11 @@ void JarVoxelChunk::_update_multi_mesh_instances(int n)
             multi_mesh_instances[i]->queue_free();
             multi_mesh_instances[i] = nullptr;
         }
-        //remove null instances
-        multi_mesh_instances.erase( std::remove( std::begin(multi_mesh_instances), std::end(multi_mesh_instances), nullptr ), std::end(multi_mesh_instances) ) ;
-    }    
+        // remove null instances
+        multi_mesh_instances.erase(
+            std::remove(std::begin(multi_mesh_instances), std::end(multi_mesh_instances), nullptr),
+            std::end(multi_mesh_instances));
+    }
 }
 
 JarVoxelChunk::JarVoxelChunk() : lod(0), edge_chunk(false)
@@ -66,7 +70,6 @@ void JarVoxelChunk::set_lod(int p_lod)
 {
     lod = p_lod;
 }
-
 
 uint8_t JarVoxelChunk::get_boundaries() const
 {
@@ -138,8 +141,7 @@ void JarVoxelChunk::set_material(Ref<ShaderMaterial> p_material)
     material = p_material;
 }
 
-
-void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ChunkMeshData *chunk_mesh_data)
+void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ExtractedMeshData *chunk_mesh_data)
 {
     _terrain = &terrain;
     _chunk_mesh_data = chunk_mesh_data;
@@ -157,7 +159,24 @@ void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node
     set_position({position.x, position.y, position.z});
 
     array_mesh->clear_surfaces();
-    array_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, chunk_mesh_data->mesh_array);
+    bool use_materials = true;
+    for (int i = 0; i < chunk_mesh_data->mesh_arrays.size(); i++)
+    {
+        array_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, chunk_mesh_data->mesh_arrays[i]);
+
+        if (i < chunk_mesh_data->material_indices.size())
+        {
+            auto material_index = chunk_mesh_data->material_indices[i];
+            if (material_index < terrain.get_materials().size())
+            {
+                mesh_instance->set_surface_override_material(i, terrain.get_materials()[material_index]);
+            }
+            else use_materials = false;
+        }
+        else use_materials = false;        
+    }
+    if (use_materials) // if so, clear override
+        mesh_instance->set_material_override(nullptr);
 
     bool generate_collider = lod <= terrain.get_collider_max_lod_threshold();
 
@@ -172,8 +191,9 @@ void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node
         collision_shape->set_disabled(true);
     }
 
-    //generate details
-    if(lod <= 0) {
+    // generate details
+    if (lod <= 0)
+    {
         ChunkDetailGenerator generator = ChunkDetailGenerator(terrain.get_world_node());
         TypedArray<JarTerrainDetail> terrain_details = terrain.get_terrain_details();
         TypedArray<MultiMesh> multi_meshes = generator.generate_details(terrain_details, *chunk_mesh_data);
@@ -181,11 +201,13 @@ void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node
         _update_multi_mesh_instances(multi_meshes.size());
         for (int i = 0; i < multi_meshes.size(); i++)
         {
-            MultiMeshInstance3D* multi_mesh_instance = multi_mesh_instances[i];
+            MultiMeshInstance3D *multi_mesh_instance = multi_mesh_instances[i];
             Ref<JarTerrainDetail> detail = terrain_details[i];
             multi_mesh_instance->set_multimesh(multi_meshes[i]);
             multi_mesh_instance->set_material_override(detail->get_material());
-            multi_mesh_instance->set_cast_shadows_setting(detail->get_shadows_enabled() ? MeshInstance3D::SHADOW_CASTING_SETTING_ON : MeshInstance3D::SHADOW_CASTING_SETTING_OFF);
+            multi_mesh_instance->set_cast_shadows_setting(detail->get_shadows_enabled()
+                                                              ? MeshInstance3D::SHADOW_CASTING_SETTING_ON
+                                                              : MeshInstance3D::SHADOW_CASTING_SETTING_OFF);
         }
     }
 

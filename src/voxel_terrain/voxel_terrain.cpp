@@ -42,6 +42,24 @@ void JarVoxelTerrain::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_cubic_voxels", "cubic_voxels"), &JarVoxelTerrain::set_cubic_voxels);
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "cubic_voxels"), "set_cubic_voxels", "get_cubic_voxels");
 
+    // -------------------------------------------------- MATERIALS --------------------------------------------------
+    ADD_GROUP("Materials", "materials_");
+    ClassDB::bind_method(D_METHOD("get_material_mode"), &JarVoxelTerrain::get_material_mode);
+    ClassDB::bind_method(D_METHOD("set_material_mode", "mode"), &JarVoxelTerrain::set_material_mode);
+    BIND_ENUM_CONSTANT(VOXEL_MATERIAL_MODE_DISCRETE_CHANNEL_SPLATTING);
+    BIND_ENUM_CONSTANT(VOXEL_MATERIAL_MODE_MULTIPLE_MESHES);
+    BIND_ENUM_CONSTANT(VOXEL_MATERIAL_MODE_PACKED_COLOR);
+    BIND_ENUM_CONSTANT(VOXEL_MATERIAL_MODE_INDEXED_BLEND_SPLATTING);
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "materials_material_mode", PROPERTY_HINT_ENUM,
+                              "DiscreteChannelSplatting,MultipleMeshes,PackedColor,IndexedBlendSplatting"),
+                 "set_material_mode", "get_material_mode");
+    ClassDB::bind_method(D_METHOD("get_materials"), &JarVoxelTerrain::get_materials);
+    ClassDB::bind_method(D_METHOD("set_materials", "materials"), &JarVoxelTerrain::set_materials);
+    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "materials", PROPERTY_HINT_TYPE_STRING,
+                              String::num(Variant::OBJECT) + "/" + String::num(PROPERTY_HINT_RESOURCE_TYPE) +
+                                  ":Material"),
+                 "set_materials", "get_materials");
+
     // -------------------------------------------------- PERFORMANCE --------------------------------------------------
     ADD_GROUP("Performance", "performance_");
     ClassDB::bind_method(D_METHOD("get_max_concurrent_tasks"), &JarVoxelTerrain::get_max_concurrent_tasks);
@@ -118,24 +136,6 @@ void JarVoxelTerrain::modify_using_sdf(const Ref<JarSdfModification> sdf)
     ModifySettings settings = sdf->to_settings(global_position, _octreeScale * 2.0f);
     _voxelRoot->modify_sdf_in_bounds(*this, settings);
 }
-
-
-// void JarVoxelTerrain::sphere_edit(const Vector3 &position, const float radius, bool operation_union)
-// {
-//     auto global_position = position - get_global_position();
-//     glm::vec3 pos = glm::vec3(global_position.x, global_position.y, global_position.z);
-//     auto operation = operation_union ? SDF::Operation::SDF_OPERATION_UNION : SDF::Operation::SDF_OPERATION_SUBTRACTION;
-//     Ref<JarSphereSdf> sdf;
-//     sdf.instantiate();
-//     sdf->set_radius(radius);
-//     auto edge = glm::vec3(radius + _octreeScale * 2.0f);
-//     if (_isBuilding)
-//         return;
-//     ModifySettings settings = {sdf, Bounds(pos - edge, pos + edge), pos, operation};
-//     _voxelRoot->modify_sdf_in_bounds(*this, settings);
-//     //_populationRoot->remove_population(settings);
-//     //_modifySettingsQueue.push({sdf, Bounds(pos - edge, pos + edge), pos, operation});
-// }
 
 void JarVoxelTerrain::enqueue_chunk_collider(VoxelOctreeNode *node)
 {
@@ -241,6 +241,26 @@ bool JarVoxelTerrain::get_cubic_voxels() const
 void JarVoxelTerrain::set_cubic_voxels(bool value)
 {
     _cubicVoxels = value;
+}
+
+VoxelMaterialMode godot::JarVoxelTerrain::get_material_mode() const
+{
+    return _materialMode;
+}
+
+void godot::JarVoxelTerrain::set_material_mode(VoxelMaterialMode mode)
+{
+    _materialMode = mode;
+}
+
+TypedArray<Material> JarVoxelTerrain::get_materials() const
+{
+    return _materials;
+}
+
+void godot::JarVoxelTerrain::set_materials(const TypedArray<Material> &materials)
+{
+    _materials = materials;
 }
 
 int JarVoxelTerrain::get_max_concurrent_tasks() const

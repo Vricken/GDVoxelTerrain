@@ -2,7 +2,7 @@
 #define JAR_VOXEL_CHUNK_H
 
 #include "bounds.h"
-#include "chunk_mesh_data.h"
+#include "extracted_mesh_data.h"
 #include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/classes/collision_shape3d.hpp>
 #include <godot_cpp/classes/concave_polygon_shape3d.hpp>
@@ -30,7 +30,7 @@ class JarVoxelChunk : public StaticBody3D
     Bounds bounds;
 
     // node references
-    ChunkMeshData* _chunk_mesh_data = nullptr;
+    ExtractedMeshData* _chunk_mesh_data = nullptr;
     JarVoxelTerrain* _terrain = nullptr;
     MeshInstance3D* mesh_instance = nullptr;
     CollisionShape3D* collision_shape = nullptr;
@@ -81,7 +81,7 @@ class JarVoxelChunk : public StaticBody3D
 
     JarVoxelTerrain* get_terrain() const { return _terrain; }
 
-    void update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ChunkMeshData *chunk_mesh_data);
+    void update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node, ExtractedMeshData *chunk_mesh_data);
     void update_collision_mesh();
     void delete_chunk();
 };

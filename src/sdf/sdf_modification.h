@@ -33,6 +33,7 @@ class JarSdfModification : public Resource
     SDFOperation _operation = SDF_OPERATION_UNION;
     float _smoothK = 1.0f;
     float _max_radius = 1000.0f; // it may be less than this value if the sdf bounds are smaller. The modification will attempt to affect the smallest volume possible
+    int _material_index = 1;
     glm::vec3 _center{0.0f};
 
   public:
@@ -72,6 +73,15 @@ class JarSdfModification : public Resource
         return _max_radius;
     }
 
+    void set_material_index(int index)
+    {
+        _material_index = index;
+    }
+    int get_material_index() const
+    {
+        return _material_index;
+    }
+
     void set_center(const Vector3 &c)
     {
         _center = glm::vec3(c.x, c.y, c.z);
@@ -96,6 +106,7 @@ class JarSdfModification : public Resource
         s.sdf = _sdf;
         s.position = _center - octree_center;
         s.operation = _operation;
+        s.material_index = _material_index;
         s.smooth_k = _smoothK;
 
         // Get the bounds of the SDF, but make sure it does not exceed the specified radius
@@ -123,6 +134,9 @@ class JarSdfModification : public Resource
         ClassDB::bind_method(D_METHOD("set_max_radius", "max_radius"), &JarSdfModification::set_max_radius);
         ClassDB::bind_method(D_METHOD("get_max_radius"), &JarSdfModification::get_max_radius);
 
+        ClassDB::bind_method(D_METHOD("set_material_index", "material_index"), &JarSdfModification::set_material_index);
+        ClassDB::bind_method(D_METHOD("get_material_index"), &JarSdfModification::get_material_index);
+
         ClassDB::bind_method(D_METHOD("set_center", "center"), &JarSdfModification::set_center);
         ClassDB::bind_method(D_METHOD("get_center"), &JarSdfModification::get_center);
 
@@ -140,6 +154,7 @@ class JarSdfModification : public Resource
                      "set_operation", "get_operation");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "smooth_k"), "set_smooth_k", "get_smooth_k");
         ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "max_radius"), "set_max_radius", "get_max_radius");
+        ADD_PROPERTY(PropertyInfo(Variant::INT, "material_index"), "set_material_index", "get_material_index");
         ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "center"), "set_center", "get_center");
     }
 

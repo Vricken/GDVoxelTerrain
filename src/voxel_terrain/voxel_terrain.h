@@ -21,6 +21,7 @@
 #include <godot_cpp/variant/typed_array.hpp>
 #include <queue>
 #include <vector>
+#include "voxel_terrain_material.h"
 
 namespace godot {
 
@@ -58,6 +59,10 @@ class JarVoxelTerrain : public Node3D
 
     bool _isBuilding = false;
     bool _cubicVoxels = false;
+
+    // MATERIALS
+    VoxelMaterialMode _materialMode = VoxelMaterialMode::VOXEL_MATERIAL_MODE_DISCRETE_CHANNEL_SPLATTING;
+    TypedArray<Material> _materials;
 
     // PERFORMANCE
     int _maxConcurrentTasks = 12;
@@ -98,7 +103,6 @@ class JarVoxelTerrain : public Node3D
     JarVoxelTerrain();
 
     void modify_using_sdf(const Ref<JarSdfModification> sdf);
-    // void sphere_edit(const Vector3 &position, const float radius, bool operation_union);
 
     void spawn_debug_spheres_in_bounds(const Vector3 &position, const float range);
 
@@ -140,6 +144,14 @@ class JarVoxelTerrain : public Node3D
 
     bool get_cubic_voxels() const;
     void set_cubic_voxels(bool value);
+
+    // MATERIALS
+
+    VoxelMaterialMode get_material_mode() const;
+    void set_material_mode(VoxelMaterialMode mode);
+
+    TypedArray<Material> get_materials() const;
+    void set_materials(const TypedArray<Material> &materials);
 
     // PEROFRMANCE
     int get_max_concurrent_tasks() const;

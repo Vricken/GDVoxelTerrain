@@ -1,5 +1,5 @@
 #include "chunk_detail_generator.h"
-#include "chunk_mesh_data.h"
+#include "extracted_mesh_data.h"
 #include "voxel_terrain.h"
 #include "world.h"
 
@@ -33,12 +33,13 @@ float ChunkDetailGenerator::get_height(const Vector3 &position) const
 }
 
 TypedArray<MultiMesh> ChunkDetailGenerator::generate_details(const TypedArray<JarTerrainDetail> &details,
-                                                             const ChunkMeshData &chunkMeshData)
+                                                             const ExtractedMeshData &chunkMeshData)
 {
-    _verts = chunkMeshData.mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_VERTEX)];
-    _indices = chunkMeshData.mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_INDEX)];
-    _normals = chunkMeshData.mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_NORMAL)];
-    _colors = chunkMeshData.mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_COLOR)];
+    auto mesh_array = chunkMeshData.mesh_arrays[0];
+    _verts = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_VERTEX)];
+    _indices = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_INDEX)];
+    _normals = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_NORMAL)];
+    _colors = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_COLOR)];
 
     glm::vec3 chunkCenterGLM = chunkMeshData.bounds.get_center();
     Vector3 chunkCenter = Vector3(chunkCenterGLM.x, chunkCenterGLM.y, chunkCenterGLM.z);

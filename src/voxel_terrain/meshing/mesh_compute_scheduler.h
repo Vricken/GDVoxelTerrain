@@ -36,7 +36,7 @@ class MeshComputeScheduler
 {
   private:
     ConcurrentPriorityQueue<VoxelOctreeNode*, ChunkComparator> ChunksToAdd;
-    ConcurrentPriorityQueue<std::pair<VoxelOctreeNode*, ChunkMeshData*>> ChunksToProcess;
+    ConcurrentPriorityQueue<std::pair<VoxelOctreeNode*, ExtractedMeshData*>> ChunksToProcess;
 
     std::atomic<int> _activeTasks;
     int _maxConcurrentTasks;

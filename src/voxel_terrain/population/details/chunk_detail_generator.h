@@ -17,7 +17,7 @@
 namespace godot {
 
 class JarVoxelTerrain;
-class ChunkMeshData;
+class ExtractedMeshData;
 class JarWorld;
 
 class ChunkDetailGenerator {
@@ -42,7 +42,7 @@ public:
 
     float get_height(const Vector3 &position) const;
 
-    TypedArray<MultiMesh> generate_details(const TypedArray<JarTerrainDetail> &details, const ChunkMeshData &chunkMeshData);
+    TypedArray<MultiMesh> generate_details(const TypedArray<JarTerrainDetail> &details, const ExtractedMeshData &chunkMeshData);
 };
 }
 

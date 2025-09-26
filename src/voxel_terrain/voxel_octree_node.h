@@ -29,7 +29,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
 
     JarVoxelChunk *_chunk = nullptr;   
 
-    int _material_index = 0;
+    uint32_t _material_index = 0;
     glm::vec3 _normal{0, 0, 0};
 
     bool is_dirty() const;
@@ -69,7 +69,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
     inline bool has_surface(const JarVoxelTerrain &terrain, const float value);
     void queue_update(JarVoxelTerrain &terrain);
     void modify_sdf_in_bounds(JarVoxelTerrain &terrain, const ModifySettings &sdf);
-    void update_chunk(JarVoxelTerrain &terrain, ChunkMeshData *chunkMeshData);
+    void update_chunk(JarVoxelTerrain &terrain, ExtractedMeshData *chunkMeshData);
 
     void delete_chunk();
     void get_voxel_leaves_in_bounds(const JarVoxelTerrain &terrain, const Bounds &Bounds,
@@ -83,13 +83,13 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
 
     float get_value();
     glm::vec3 get_normal();
-    int get_lod() const;
-    int get_material_index();
+    uint32_t get_lod() const;
+    uint32_t get_material_index();
 
     // private:
 
   protected:
-    inline virtual std::unique_ptr<VoxelOctreeNode> create_child_node(const glm::vec3 &center, int size) override;
+    inline virtual std::unique_ptr<VoxelOctreeNode> create_child_node(const glm::vec3 &center, uint32_t size) override;
 };
 }
 

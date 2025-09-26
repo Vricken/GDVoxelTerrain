@@ -14,9 +14,9 @@ public:
     std::unique_ptr<std::array<std::unique_ptr<TNode>, 8>> _children;
     TNode* _parent = nullptr;
     const glm::vec3 _center = {0, 0, 0};
-    const int _size = 0;
+    const uint32_t _size = 0;
 
-    OctreeNode(TNode* parent, const glm::vec3& center, int size)
+    OctreeNode(TNode* parent, const glm::vec3& center, uint32_t size)
         : _parent(parent), _center(center), _size(size) {}
 
     ~OctreeNode() {
@@ -71,8 +71,8 @@ public:
     }
 
 protected:
-    virtual int min_size() const { return 0; }
-    virtual std::unique_ptr<TNode> create_child_node(const glm::vec3& center, int size) = 0;
+    virtual uint32_t min_size() const { return 0; }
+    virtual std::unique_ptr<TNode> create_child_node(const glm::vec3& center, uint32_t size) = 0;
 };
 }
 

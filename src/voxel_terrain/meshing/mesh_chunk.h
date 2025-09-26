@@ -2,6 +2,7 @@
 #define STITCHED_MESH_CHUNK_H
 
 #include "voxel_octree_node.h"
+#include "mesh_extraction_input_data.h"
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <unordered_set>
@@ -13,7 +14,7 @@ namespace godot {
 
 class JarVoxelTerrain;
 
-class MeshChunk
+class MeshChunk : public MeshExtractionInputData
 {
   public:
     std::vector<Bounds> RingBounds;

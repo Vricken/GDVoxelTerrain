@@ -91,7 +91,7 @@ float VoxelOctreeNode::get_value()
     return _value;
 }
 
-int VoxelOctreeNode::get_material_index()
+uint32_t VoxelOctreeNode::get_material_index()
 {
     update_if_dirty();
     return _material_index;
@@ -103,7 +103,7 @@ glm::vec3 VoxelOctreeNode::get_normal()
     return _normal;
 }
 
-int VoxelOctreeNode::get_lod() const
+uint32_t VoxelOctreeNode::get_lod() const
 {
     return LoD;
 }
@@ -349,7 +349,7 @@ void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const Modif
         delete_chunk();
 }
 
-void VoxelOctreeNode::update_chunk(JarVoxelTerrain &terrain, ChunkMeshData *chunkMeshData)
+void VoxelOctreeNode::update_chunk(JarVoxelTerrain &terrain, ExtractedMeshData *chunkMeshData)
 {
     _isEnqueued = false;
     finished_meshing_notify_parent_and_children();
@@ -447,7 +447,7 @@ void VoxelOctreeNode::get_voxel_leaves_in_bounds_excluding_bounds(const JarVoxel
         child->get_voxel_leaves_in_bounds_excluding_bounds(terrain, acceptance_bounds, rejection_bounds, LOD, result);
 }
 
-inline std::unique_ptr<VoxelOctreeNode> VoxelOctreeNode::create_child_node(const glm::vec3 &center, int size)
+inline std::unique_ptr<VoxelOctreeNode> VoxelOctreeNode::create_child_node(const glm::vec3 &center, uint32_t size)
 {
     return std::make_unique<VoxelOctreeNode>(this, center, size);
 }
