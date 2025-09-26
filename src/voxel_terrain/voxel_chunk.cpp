@@ -194,7 +194,7 @@ void JarVoxelChunk::update_chunk(JarVoxelTerrain &terrain, VoxelOctreeNode *node
     // generate details
     if (lod <= 0)
     {
-        ChunkDetailGenerator generator = ChunkDetailGenerator(terrain.get_world_node());
+        ChunkDetailGenerator generator = ChunkDetailGenerator(terrain.get_world_node(), terrain.get_material_mode());
         TypedArray<JarTerrainDetail> terrain_details = terrain.get_terrain_details();
         TypedArray<MultiMesh> multi_meshes = generator.generate_details(terrain_details, *chunk_mesh_data);
 

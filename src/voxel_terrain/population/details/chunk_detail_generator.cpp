@@ -5,7 +5,8 @@
 
 using namespace godot;
 
-ChunkDetailGenerator::ChunkDetailGenerator(JarWorld *world) : world(world)
+ChunkDetailGenerator::ChunkDetailGenerator(JarWorld *world, VoxelMaterialMode material_mode)
+    : world(world), material_mode(material_mode)
 {
     // Constructor implementation
     // load details
@@ -32,39 +33,90 @@ float ChunkDetailGenerator::get_height(const Vector3 &position) const
     return position.y;
 }
 
+uint32_t ChunkDetailGenerator::get_material_index_from_triangle(const Triangle &tri, const std::vector<Color> &colors, const glm::vec2 &barycentric) const
+{
+    if (material_mode == VoxelMaterialMode::VOXEL_MATERIAL_MODE_MULTIPLE_MESHES)
+        return tri.material_index;
+
+    Color color = colors[tri.a] + barycentric.x * (colors[tri.b] - colors[tri.a]) +
+                barycentric.y * (colors[tri.c] - colors[tri.a]);
+
+    return VoxelTerrainMaterial::get_material_from_color(material_mode, VoxelTerrainMaterial::to_vec4(color));
+}
+
 TypedArray<MultiMesh> ChunkDetailGenerator::generate_details(const TypedArray<JarTerrainDetail> &details,
                                                              const ExtractedMeshData &chunkMeshData)
 {
-    auto mesh_array = chunkMeshData.mesh_arrays[0];
-    _verts = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_VERTEX)];
-    _indices = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_INDEX)];
-    _normals = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_NORMAL)];
-    _colors = mesh_array[static_cast<int>(Mesh::ArrayType::ARRAY_COLOR)];
+    std::vector<Vector3> all_verts;
+    std::vector<Vector3> all_normals;
+    std::vector<Color> all_colors;
+    std::vector<Triangle> triangles;
+
+    // --- Build global arrays and triangles ---
+    for (size_t s = 0; s < chunkMeshData.mesh_arrays.size(); ++s)
+    {
+        const Array &mesh_array = chunkMeshData.mesh_arrays[s];
+        int mat_index = chunkMeshData.material_indices[s];
+
+        PackedVector3Array verts = mesh_array[Mesh::ARRAY_VERTEX];
+        PackedVector3Array normals = mesh_array[Mesh::ARRAY_NORMAL];
+        PackedColorArray colors = mesh_array[Mesh::ARRAY_COLOR];
+        PackedInt32Array indices = mesh_array[Mesh::ARRAY_INDEX];
+
+        int base = all_verts.size();
+
+        // append vertices/normals/colors into global arrays
+        for (int i = 0; i < verts.size(); i++)
+        {
+            all_verts.push_back(verts[i]);
+            all_normals.push_back(normals[i]);
+            all_colors.push_back(colors[i]);
+        }
+
+        // build triangles
+        for (int i = 0; i < indices.size(); i += 3)
+        {
+            Triangle tri;
+            tri.a = base + indices[i];
+            tri.b = base + indices[i + 1];
+            tri.c = base + indices[i + 2];
+            tri.material_index = mat_index;
+            triangles.push_back(tri);
+        }
+    }
 
     glm::vec3 chunkCenterGLM = chunkMeshData.bounds.get_center();
-    Vector3 chunkCenter = Vector3(chunkCenterGLM.x, chunkCenterGLM.y, chunkCenterGLM.z);
-    if (details.size() <= 0)
+    Vector3 chunkCenter(chunkCenterGLM.x, chunkCenterGLM.y, chunkCenterGLM.z);
+
+    if (details.is_empty())
         return TypedArray<MultiMesh>();
 
     std::vector<std::vector<Transform3D>> ts(details.size());
-    for (size_t i = 0; i < _indices.size(); i += 3)
+
+    // --- Iterate triangles ---
+    for (const Triangle &tri : triangles)
     {
-        Vector3 posA = _verts[_indices[i]];
-        Vector3 posB = _verts[_indices[i + 1]];
-        Vector3 posC = _verts[_indices[i + 2]];
+        Vector3 posA = all_verts[tri.a];
+        Vector3 posB = all_verts[tri.b];
+        Vector3 posC = all_verts[tri.c];
 
         Vector3 edge1 = posB - posA;
         Vector3 edge2 = posC - posA;
         float area = edge1.cross(edge2).length() * 0.5f;
 
+        // compute interpolated normal/color as before
         for (size_t d = 0; d < details.size(); d++)
         {
             Ref<JarTerrainDetail> detail = details[d];
+
+            // material filtering
+            if (!detail->supports_material(tri.material_index))
+                continue;
+
             float n = area * detail->get_density();
             int nInt = static_cast<int>(std::floor(n));
             float nFloat = DeterministicFloat((posA + posB + posC) * (1 + d));
             nInt += (nFloat < (n - nInt)) ? 1 : 0;
-            // nInt = 1;
 
             for (int j = 0; j < nInt; j++)
             {
@@ -80,20 +132,21 @@ TypedArray<MultiMesh> ChunkDetailGenerator::generate_details(const TypedArray<Ja
                 Vector3 worldPosition = position + chunkCenter;
                 Vector3 world_up = -get_gravity_normal(worldPosition);
                 float height = get_height(worldPosition);
-
-
                 if (!detail->is_height_in_range(height))
                     continue;
 
-                Vector3 up = _normals[_indices[i]] + r1 * (_normals[_indices[i + 1]] - _normals[_indices[i]]) +
-                             r2 * (_normals[_indices[i + 2]] - _normals[_indices[i]]);
-                Color color = _colors[_indices[i]] + r1 * (_colors[_indices[i + 1]] - _colors[_indices[i]]) +
-                              r2 * (_colors[_indices[i + 2]] - _colors[_indices[i]]);
+                Vector3 up = all_normals[tri.a] + r1 * (all_normals[tri.b] - all_normals[tri.a]) +
+                             r2 * (all_normals[tri.c] - all_normals[tri.a]);
+
+                uint32_t material_index = get_material_index_from_triangle(tri, all_colors, glm::vec2(r1, r2));
+
+                if(!detail->supports_material(material_index))
+                    continue;
+
                 up = up.normalized();
 
                 float dot = up.dot(world_up);
-
-                if (detail->is_slope_in_range(dot) || color.r > 0.5)
+                if (detail->is_slope_in_range(dot))
                     continue;
 
                 if (!detail->get_align_with_normal())
@@ -113,20 +166,13 @@ TypedArray<MultiMesh> ChunkDetailGenerator::generate_details(const TypedArray<Ja
     for (size_t d = 0; d < details.size(); d++)
     {
         Ref<JarTerrainDetail> detail = details[d];
-        // for (const auto &lod : detail->Visuals) {
         Ref<MultiMesh> mesh = memnew(MultiMesh());
         mesh->set_transform_format(MultiMesh::TRANSFORM_3D);
         mesh->set_mesh(detail->get_mesh());
         mesh->set_instance_count(ts[d].size());
-
         for (size_t i = 0; i < ts[d].size(); i++)
-        {
             mesh->set_instance_transform(i, ts[d][i]);
-        }
-
         meshes.append(mesh);
-        // }
     }
-
     return meshes;
 }

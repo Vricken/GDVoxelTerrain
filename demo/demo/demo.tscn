@@ -58,6 +58,7 @@ environment = SubResource("Environment_tn4qg")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.699925, 0.714216, 0, -0.714216, 0.699925, 0, 3.92238, 0)
 shadow_enabled = true
+shadow_opacity = 0.8
 
 [node name="Label" type="Label" parent="."]
 visible = false

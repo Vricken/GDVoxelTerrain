@@ -37,17 +37,27 @@ enum VoxelMaterialMode {
 
 namespace VoxelTerrainMaterial {
 
+const float VOXEL_CHANNEL_SPLATTING_THRESHOLD = 0.5f;
+
+inline glm::vec4 to_vec4(const godot::Color &c) {
+    return glm::vec4(c.r, c.g, c.b, c.a);
+}
+
+inline godot::Color to_color(const glm::vec4 &v) {
+    return godot::Color(v.r, v.g, v.b, v.a);
+}
+
 // Convert packed uint32_t to Color (each channel normalized to [0,1])
-inline godot::Color packed_index_to_color(uint32_t index) {
+inline glm::vec4 packed_index_to_color(uint32_t index) {
     float r = float((index >> 24) & 0xFF) / 255.0f;
     float g = float((index >> 16) & 0xFF) / 255.0f;
     float b = float((index >> 8)  & 0xFF) / 255.0f;
     float a = float((index >> 0)  & 0xFF) / 255.0f;
-    return godot::Color(r, g, b, a);
+    return {r, g, b, a};
 }
 
 // Convert godot::Color to packed uint32_t (each channel quantized to 8 bits)
-inline uint32_t color_to_packed_index(const godot::Color &color) {
+inline uint32_t color_to_packed_index(const glm::vec4 &color) {
     uint32_t r = uint32_t(godot::Math::clamp(color.r * 255.0f, 0.0f, 255.0f));
     uint32_t g = uint32_t(godot::Math::clamp(color.g * 255.0f, 0.0f, 255.0f));
     uint32_t b = uint32_t(godot::Math::clamp(color.b * 255.0f, 0.0f, 255.0f));
@@ -84,6 +94,26 @@ inline glm::vec4 get_color_from_material(const VoxelMaterialMode mode, const uin
 
     }
     return glm::vec4(0,0,0,0);
+}
+
+inline uint32_t get_material_from_color(const VoxelMaterialMode mode, const glm::vec4 color)
+{
+    switch (mode)
+    {
+    case VOXEL_MATERIAL_MODE_DISCRETE_CHANNEL_SPLATTING:
+        {
+            for(int material_index = 0; material_index < 4; material_index++)
+                if (color[material_index] > VOXEL_CHANNEL_SPLATTING_THRESHOLD)
+                    return material_index + 1;
+            return 0;
+        }
+        case VOXEL_MATERIAL_MODE_PACKED_COLOR:
+        {
+            return VoxelTerrainMaterial::color_to_packed_index(color);
+        }    
+
+    }
+    return 0;
 }
 
 }
