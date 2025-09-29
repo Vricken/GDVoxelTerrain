@@ -1,6 +1,7 @@
 #include "voxel_terrain.h"
 #include "plane_sdf.h"
 #include "sphere_sdf.h"
+#include "world.h"
 
 using namespace godot;
 
@@ -10,11 +11,6 @@ void JarVoxelTerrain::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_player_node", "player_node"), &JarVoxelTerrain::set_player_node);
     ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "player_node", PROPERTY_HINT_NODE_TYPE, "Node3D"), "set_player_node",
                  "get_player_node");
-
-    ClassDB::bind_method(D_METHOD("get_world_node"), &JarVoxelTerrain::get_world_node);
-    ClassDB::bind_method(D_METHOD("set_world_node", "world_node"), &JarVoxelTerrain::set_world_node);
-    ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "world_node", PROPERTY_HINT_NODE_TYPE, "JarWorld"), "set_world_node",
-                 "get_world_node");
 
     ClassDB::bind_method(D_METHOD("get_octree_scale"), &JarVoxelTerrain::get_octree_scale);
     ClassDB::bind_method(D_METHOD("set_octree_scale", "value"), &JarVoxelTerrain::set_octree_scale);
@@ -55,10 +51,10 @@ void JarVoxelTerrain::_bind_methods()
                  "set_material_mode", "get_material_mode");
     ClassDB::bind_method(D_METHOD("get_materials"), &JarVoxelTerrain::get_materials);
     ClassDB::bind_method(D_METHOD("set_materials", "materials"), &JarVoxelTerrain::set_materials);
-    ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "materials", PROPERTY_HINT_TYPE_STRING,
-                              String::num(Variant::OBJECT) + "/" + String::num(PROPERTY_HINT_RESOURCE_TYPE) +
-                                  ":Material"),
-                 "set_materials", "get_materials");
+    ADD_PROPERTY(
+        PropertyInfo(Variant::ARRAY, "materials", PROPERTY_HINT_TYPE_STRING,
+                     String::num(Variant::OBJECT) + "/" + String::num(PROPERTY_HINT_RESOURCE_TYPE) + ":Material"),
+        "set_materials", "get_materials");
 
     // -------------------------------------------------- PERFORMANCE --------------------------------------------------
     ADD_GROUP("Performance", "performance_");
@@ -74,12 +70,11 @@ void JarVoxelTerrain::_bind_methods()
     ADD_PROPERTY(PropertyInfo(Variant::INT, "performance_updated_colliders_per_second"),
                  "set_updated_colliders_per_second", "get_updated_colliders_per_second");
 
-    ClassDB::bind_method(D_METHOD("get_collider_max_lod_threshold"),
-                         &JarVoxelTerrain::get_collider_max_lod_threshold);
+    ClassDB::bind_method(D_METHOD("get_collider_max_lod_threshold"), &JarVoxelTerrain::get_collider_max_lod_threshold);
     ClassDB::bind_method(D_METHOD("set_collider_max_lod_threshold", "value"),
                          &JarVoxelTerrain::set_collider_max_lod_threshold);
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "performance_collider_max_lod_threshold"),
-                 "set_collider_max_lod_threshold", "get_collider_max_lod_threshold");
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "performance_collider_max_lod_threshold"), "set_collider_max_lod_threshold",
+                 "get_collider_max_lod_threshold");
 
     // -------------------------------------------------- LOD --------------------------------------------------
     ADD_GROUP("Level Of Detail", "lod_");
@@ -131,7 +126,6 @@ void JarVoxelTerrain::modify_using_sdf(const Ref<JarSdfModification> sdf)
 
     auto godot_global_position = get_global_position();
     glm::vec3 global_position = glm::vec3(godot_global_position.x, godot_global_position.y, godot_global_position.z);
-    
 
     ModifySettings settings = sdf->to_settings(global_position, _octreeScale * 2.0f);
     _voxelRoot->modify_sdf_in_bounds(*this, settings);
@@ -161,12 +155,12 @@ void JarVoxelTerrain::set_player_node(Node3D *playerNode)
 
 JarWorld *JarVoxelTerrain::get_world_node() const
 {
-    return _worldNode;
+    return _world;
 }
 
 void JarVoxelTerrain::set_world_node(JarWorld *worldNode)
 {
-    _worldNode = worldNode;
+    _world = worldNode;
 }
 
 bool JarVoxelTerrain::is_building() const
@@ -371,8 +365,8 @@ void JarVoxelTerrain::initialize()
         return;
     }
     _chunkSize = (1 << _chunk_size_log2);
-    _voxelLod =
-        JarVoxelLoD(_lod_automatic_update, _lod_automatic_update_distance, _lod_level_count, _lod_shell_size, _octreeScale, _chunkSize);
+    _voxelLod = JarVoxelLoD(_lod_automatic_update, _lod_automatic_update_distance, _lod_level_count, _lod_shell_size,
+                            _octreeScale, _chunkSize);
     _meshComputeScheduler = std::make_unique<MeshComputeScheduler>(_maxConcurrentTasks);
     _voxelRoot = std::make_unique<VoxelOctreeNode>(_size);
     //_populationRoot = memnew(PopulationOctreeNode(_size));
@@ -382,7 +376,8 @@ void JarVoxelTerrain::initialize()
 void JarVoxelTerrain::process()
 {
     float delta = get_process_delta_time();
-    if (!_meshComputeScheduler) return;
+    if (!_meshComputeScheduler)
+        return;
 
     if (!_isBuilding && !_meshComputeScheduler->is_meshing() && _voxelLod.process(*this, false))
         build();
@@ -417,7 +412,7 @@ void JarVoxelTerrain::build()
 {
     if (_isBuilding || _meshComputeScheduler->is_meshing())
         return;
-    
+
     std::thread([this]() {
         // UtilityFunctions::print("start building");
         _isBuilding = true;
@@ -551,7 +546,7 @@ void JarVoxelTerrain::spawn_debug_spheres_in_bounds(const Vector3 &position, con
 
     for (auto &&n : nodes)
     {
-        Vector3 nodeCenter(n->_center.x, n->_center.y, n->_center.z);
+        Vector3 nodeCenter(n->get_center().x, n->get_center().y, n->get_center().z);
 
         MeshInstance3D *sphereInstance = memnew(MeshInstance3D);
         add_child(sphereInstance);

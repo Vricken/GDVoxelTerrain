@@ -58,8 +58,7 @@ void VoxelOctreeNode::update_if_dirty()
         int alternative_material_index = 0;
         int solid_count = 0;
 
-        for (auto &child : (*_children))
-        {            
+        for (const auto &child : *_children) {       
             auto childValue = child->get_value();
             _value += childValue;
             
@@ -83,6 +82,10 @@ void VoxelOctreeNode::update_if_dirty()
     }
 
     _isDirty = false;
+}
+
+bool VoxelOctreeNode::is_modified() const {
+    return _isModified;
 }
 
 float VoxelOctreeNode::get_value()
@@ -155,22 +158,22 @@ JarVoxelChunk *VoxelOctreeNode::get_chunk() const
 
 inline bool VoxelOctreeNode::is_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size == (LoD + terrain.get_chunk_size_log2());
+    return _sizeLog2 == (LoD + terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_above_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size > (LoD + terrain.get_chunk_size_log2());
+    return _sizeLog2 > (LoD + terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_above_min_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size > (terrain.get_chunk_size_log2());
+    return _sizeLog2 > (terrain.get_chunk_size_log2());
 }
 
 inline bool VoxelOctreeNode::is_one_above_chunk(const JarVoxelTerrain &terrain) const
 {
-    return _size == (LoD + terrain.get_chunk_size_log2() + 1);
+    return _sizeLog2 == (LoD + terrain.get_chunk_size_log2() + 1);
 }
 
 void VoxelOctreeNode::populateUniqueLoDValues(std::vector<int> &lodValues) const
@@ -257,13 +260,13 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
         float value = terrain.get_sdf()->distance(_center);
         glm::vec3 normal = terrain.need_normals() ? terrain.get_sdf()->normal(_center) : glm::vec3(0.0f);
         set_value(value, normal, 0);
-        if (has_surface(terrain, value) && (_size > LoD))
+        if (has_surface(terrain, value) && (_sizeLog2 > LoD))
         {
             subdivide(terrain.get_octree_scale());
             _isGenerated = true;
         }
         // if we don't subdivide further, we mark it as a fully realized subtree
-        if (is_leaf() && (_size > LoD || _size == min_size()))
+        if (is_leaf() && (_sizeLog2 > LoD || _sizeLog2 == min_size()))
         { //
             _isGenerated = true;
             mark_materialized();
@@ -287,7 +290,7 @@ void VoxelOctreeNode::build(JarVoxelTerrain &terrain)
 bool VoxelOctreeNode::has_surface(const JarVoxelTerrain &terrain, const float value)
 {
     //(3*(1/2)^3)^(1/3) = 1.44224957 for d instead of r
-    return std::abs(value) < (1 << _size) * terrain.get_octree_scale() * 1.44224957f * 1.75f;
+    return std::abs(value) < (1 << _sizeLog2) * terrain.get_octree_scale() * 1.44224957f * 1.75f;
 }
 
 void VoxelOctreeNode::modify_sdf_in_bounds(JarVoxelTerrain &terrain, const ModifySettings &settings)
@@ -397,7 +400,7 @@ void VoxelOctreeNode::get_voxel_leaves_in_bounds(const JarVoxelTerrain &terrain,
 
     // LoD = terrain.get_lod()->desired_lod(*this);
 
-    if (_size == LoD || (is_leaf() && _size >= LoD))
+    if (_sizeLog2 == LoD || (is_leaf() && _sizeLog2 >= LoD))
     {
         result.push_back(this);
         return;
@@ -414,10 +417,10 @@ void VoxelOctreeNode::get_voxel_leaves_in_bounds(const JarVoxelTerrain &terrain,
 void VoxelOctreeNode::get_voxel_leaves_in_bounds(const JarVoxelTerrain &terrain, const Bounds &bounds, const int LOD,
                                                  std::vector<VoxelOctreeNode *> &result)
 {
-    if (!get_bounds(terrain.get_octree_scale()).intersects(bounds) || (is_leaf() && _size > LOD))
+    if (!get_bounds(terrain.get_octree_scale()).intersects(bounds) || (is_leaf() && _sizeLog2 > LOD))
         return;
 
-    if (_size == LOD)
+    if (_sizeLog2 == LOD)
     {
         result.push_back(this);
         return;
@@ -433,10 +436,10 @@ void VoxelOctreeNode::get_voxel_leaves_in_bounds_excluding_bounds(const JarVoxel
                                                                   std::vector<VoxelOctreeNode *> &result)
 {
     auto bounds = get_bounds(terrain.get_octree_scale());
-    if (!acceptance_bounds.intersects(bounds) || (is_leaf() && _size > LOD))
+    if (!acceptance_bounds.intersects(bounds) || (is_leaf() && _sizeLog2 > LOD))
         return;
 
-    if (_size == LOD)
+    if (_sizeLog2 == LOD)
     {
         if (!rejection_bounds.intersects(bounds))
             result.push_back(this);

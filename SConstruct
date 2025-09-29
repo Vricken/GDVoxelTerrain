@@ -9,23 +9,24 @@ env = SConscript("godot-cpp/SConstruct")
 
 # Add necessary include directories
 env.Append(CPPPATH=[
-    "src/glm/",
-    "src/utility/",
-    "src/",
-    "src/sdf/",
-    "src/voxel_terrain/",
-    "src/voxel_terrain/meshing",
-    "src/voxel_terrain/world",
-    "src/voxel_terrain/population",
-    "src/voxel_terrain/population/details",
-    "src/voxel_terrain/population/features",
+    "src/glm",
+    "src/utility",
+    "src",
+    "src/sdf",
+    "src/world",
+    "src/world/storage",
+    "src/world/voxels",
+    "src/world/voxels/meshing",
+    "src/world/population",
+    "src/world/population/details",
+    "src/world/population/features",
 ])
 
-# # Add main source files
+## Add main source files
 sources = Glob("src/*.cpp") + Glob("src/utility/*.cpp") + Glob("src/sdf/*.cpp") + \
-      Glob("src/voxel_terrain/*.cpp") + Glob("src/voxel_terrain/meshing/*.cpp") + \
-            Glob("src/voxel_terrain/population/*.cpp") + Glob("src/voxel_terrain/population/details/*.cpp") + \
-            Glob("src/voxel_terrain/population/features/*.cpp")
+    Glob("src/world/*.cpp") + Glob("src/world/storage/*.cpp") + Glob("src/world/voxels/*.cpp") + Glob("src/world/voxels/meshing/*.cpp") + \
+    Glob("src/world/population/*.cpp") + Glob("src/world/population/details/*.cpp") + \
+    Glob("src/world/population/features/*.cpp")
 
 if env["target"] != "template_release":
 	try:

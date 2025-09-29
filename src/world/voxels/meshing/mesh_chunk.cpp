@@ -58,7 +58,7 @@ MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chun
                glm::vec3( 0.5f,  0.5f, 0) + glm::vec3( 2.0f / leaf_count))
     };
 
-    glm::vec3 chunkCenter = chunk._center;
+    glm::vec3 chunkCenter = chunk.get_center();
     auto cameraPosition = terrain.get_camera_position();
     // if(chunk.LoD > 0 ) return;
     Octant = glm::ivec3(chunkCenter.x > cameraPosition.x ? 1 : -1, chunkCenter.y > cameraPosition.y ? 1 : -1,
@@ -98,7 +98,7 @@ MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chun
         for (size_t i = 0; i < nodes.size(); i++)
         {
             VoxelOctreeNode *node = nodes[i];
-            glm::ivec3 pos = (glm::ivec3)glm::ceil((node->_center - minPos) * normalizingFactor) - glm::ivec3(1.0f);
+            glm::ivec3 pos = (glm::ivec3)glm::ceil((node->get_center() - minPos) * normalizingFactor) - glm::ivec3(1.0f);
             pos = glm::clamp(pos, glm::ivec3(0.0f), clampMax);
 
             // if (is_on_boundary(_lodH2LBoundaries, pos))
@@ -157,7 +157,7 @@ MeshChunk::MeshChunk(const JarVoxelTerrain &terrain, const VoxelOctreeNode &chun
         for (size_t i = innerNodeCount; i < nodes.size(); i++)
         {
             VoxelOctreeNode *node = nodes[i];
-            glm::ivec3 pos = (glm::ivec3)glm::ceil((node->_center - minPos) * normalizingFactor) - glm::ivec3(1.0f);
+            glm::ivec3 pos = (glm::ivec3)glm::ceil((node->get_center() - minPos) * normalizingFactor) - glm::ivec3(1.0f);
 
             minRecPos = glm::min(minRecPos, glm::vec3(pos));
             maxRecPos = glm::max(maxRecPos, glm::vec3(pos));

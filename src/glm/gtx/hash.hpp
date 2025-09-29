@@ -41,7 +41,7 @@
 #include "../mat4x4.hpp"
 
 #if __cplusplus < 201103L
-#pragma message("GLM_GTX_hash requires C++11 standard library support")
+// #pragma message("GLM_GTX_hash requires C++11 standard library support")
 #endif
 
 #if GLM_LANG & GLM_LANG_CXX11

@@ -48,7 +48,7 @@ bool JarVoxelLoD::update_camera_position(const JarVoxelTerrain &terrain, const b
 
 int JarVoxelLoD::desired_lod(const VoxelOctreeNode &node)
 {
-    auto l = node._size > _maxChunkSize ? 0 : lod_at(node._center);
+    auto l = node.get_size_log2() > _maxChunkSize ? 0 : lod_at(node.get_center());
     return l;
 }
 

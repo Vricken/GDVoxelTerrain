@@ -11,7 +11,6 @@
 #include <memory>
 #include <vector>
 
-
 namespace godot {
 
 class JarVoxelTerrain;
@@ -81,9 +80,10 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
                                                      const Bounds &excluding_bounds, const int LOD,
                                                      std::vector<VoxelOctreeNode *> &result);
 
-    float get_value();
-    glm::vec3 get_normal();
+    bool is_modified() const;
     uint32_t get_lod() const;
+    float get_value();
+    glm::vec3 get_normal();    
     uint32_t get_material_index();
 
     // private:

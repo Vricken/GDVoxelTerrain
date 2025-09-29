@@ -25,13 +25,13 @@ tonemap_mode = 3
 
 [node name="Demo" type="Node3D"]
 
-[node name="JarSphericalWorld" type="JarSphericalWorld" parent="."]
+[node name="JarSphericalWorld" type="JarSphericalWorld" parent="." node_paths=PackedStringArray("terrain")]
 sphere_radius = 4096.0
+terrain = NodePath("JarVoxelTerrain")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -4196, 0)
 
-[node name="JarVoxelTerrain" type="JarVoxelTerrain" parent="JarSphericalWorld" node_paths=PackedStringArray("player_node", "world_node")]
+[node name="JarVoxelTerrain" type="JarVoxelTerrain" parent="JarSphericalWorld" node_paths=PackedStringArray("player_node")]
 player_node = NodePath("../../Player")
-world_node = NodePath("..")
 size = 20
 chunk_scene = ExtResource("1_0cm30")
 sdf = ExtResource("2_onu7k")
@@ -39,7 +39,7 @@ performance_max_concurrent_tasks = 20
 population_terrain_details = Array[JarTerrainDetail]([ExtResource("3_onvmd")])
 transform = Transform3D(1, 0, 0.000401426, 0, 1, 0, -0.000401426, 0, 1, 0, 0, 0)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="JarSphericalWorld"]
+[node name="WaterMesh" type="MeshInstance3D" parent="JarSphericalWorld"]
 mesh = SubResource("SphereMesh_onvmd")
 surface_material_override/0 = ExtResource("4_oeqrt")
 

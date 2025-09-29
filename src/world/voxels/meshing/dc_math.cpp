@@ -1,5 +1,5 @@
 #include "dc_math.h"
-#include "voxel_terrain/meshing/mesh_chunk.h"
+#include "mesh_chunk.h"
 #include <cmath>
 #include <limits>
 #include <algorithm>

@@ -30,8 +30,8 @@ void DualSurfaceExtractor::create_vertex(const JarVoxelTerrain &terrain, const i
         auto nb = _meshChunk->nodes[bi];
         float valueA = na->get_value();
         float valueB = nb->get_value();
-        glm::vec3 posA = na->_center;
-        glm::vec3 posB = nb->_center;
+        glm::vec3 posA = na->get_center();
+        glm::vec3 posB = nb->get_center();
 
         normal += (valueB - valueA) * (posB - posA);
 
@@ -70,9 +70,9 @@ void DualSurfaceExtractor::create_vertex(const JarVoxelTerrain &terrain, const i
     color /= static_cast<float>(edge_crossings);
     normal = glm::normalize(normal);
     if (_cubicVoxels)
-        vertexPosition = _meshChunk->nodes[node_id]->_center;
+        vertexPosition = _meshChunk->nodes[node_id]->get_center();
 
-    vertexPosition -= _chunk->_center;
+    vertexPosition -= _chunk->get_center();
 
     glm::ivec3 grid_position = _meshChunk->positions[node_id];
     if ((on_ring || _meshChunk->is_on_any_boundary(grid_position)) &&
@@ -125,8 +125,8 @@ ExtractedMeshData *DualSurfaceExtractor::generate_mesh_data(const JarVoxelTerrai
         create_vertex(terrain, node_id, neighbours, true);
         // if (false)
         // { // print the nodes itself
-        //     glm::vec3 vertexPosition = _meshChunk->nodes[node_id]->_center;
-        //     vertexPosition -= _chunk->_center;
+        //     glm::vec3 vertexPosition = _meshChunk->nodes[node_id]->get_center();
+        //     vertexPosition -= _chunk->get_center();
         //     int vertexIndex = (_verts.size());
         //     _meshChunk->vertexIndices[node_id] = vertexIndex;
         //     _verts.push_back({vertexPosition.x, vertexPosition.y, vertexPosition.z});

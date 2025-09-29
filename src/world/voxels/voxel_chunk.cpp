@@ -1,7 +1,7 @@
 #include "voxel_chunk.h"
 #include "chunk_detail_generator.h"
-#include "voxel_terrain/voxel_octree_node.h"
-#include "voxel_terrain/voxel_terrain.h"
+#include "voxel_octree_node.h"
+#include "voxel_terrain.h"
 #include <godot_cpp/classes/sphere_mesh.hpp>
 #include <godot_cpp/classes/standard_material3d.hpp>
 

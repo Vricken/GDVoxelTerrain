@@ -6,7 +6,6 @@
 #include "signed_distance_field.h"
 #include "terrain_detail.h"
 #include "voxel_lod.h"
-#include "world.h"
 #include "voxel_octree_node.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/fast_noise_lite.hpp>
@@ -24,6 +23,8 @@
 #include "voxel_terrain_material.h"
 
 namespace godot {
+
+class JarWorld;
 
 class JarVoxelTerrain : public Node3D
 {
@@ -80,8 +81,8 @@ class JarVoxelTerrain : public Node3D
     TypedArray<JarTerrainDetail> _terrainDetails;
 
     // TERRAIN DESTRUCTION
-    // bool _separate_loose_chunks = true;
-    // int _max_rigidybody_volume;
+    bool _destruction_enable_separating_loose_chunks = true;
+    int _destruction_max_rigidybody_volume;
 
     void build();
     void _notification(int what);
@@ -91,10 +92,8 @@ class JarVoxelTerrain : public Node3D
     void generate_epsilons();
     void process_modify_queue();
 
-    // void process_delete_chunk_queue();
-
+    JarWorld *_world = nullptr;
     Node3D *_playerNode = nullptr;
-    JarWorld *_worldNode = nullptr;
 
   protected:
     static void _bind_methods();
