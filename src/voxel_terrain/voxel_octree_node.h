@@ -2,9 +2,9 @@
 #define VOXEL_OCTREE_NODE_H
 
 #include "bounds.h"
-#include "voxel_chunk.h"
 #include "modify_settings.h"
 #include "octree_node.h"
+#include "voxel_chunk.h"
 #include <algorithm>
 #include <array>
 #include <glm/glm.hpp>
@@ -50,7 +50,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
     uint16_t compute_boundaries(const JarVoxelTerrain &terrain) const;
 
     JarVoxelChunk *get_chunk() const;
-    inline bool is_chunk(const JarVoxelTerrain &terrain) const;
+    bool is_chunk(const JarVoxelTerrain &terrain) const;
     inline bool is_above_chunk(const JarVoxelTerrain &terrain) const;
     inline bool is_above_min_chunk(const JarVoxelTerrain &terrain) const;
     bool is_enqueued() const;
@@ -82,7 +82,7 @@ class VoxelOctreeNode : public OctreeNode<VoxelOctreeNode>
     // private:
 
   protected:
-    inline virtual std::unique_ptr<VoxelOctreeNode> create_child_node(const glm::vec3 &center, int size) override;
+    virtual std::unique_ptr<VoxelOctreeNode> create_child_node(const glm::vec3 &center, int size) override;
 };
 
 #endif // VOXEL_OCTREE_NODE_H

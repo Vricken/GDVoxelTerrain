@@ -114,7 +114,7 @@ JarVoxelChunk *VoxelOctreeNode::get_chunk() const
     return _chunk;
 }
 
-inline bool VoxelOctreeNode::is_chunk(const JarVoxelTerrain &terrain) const
+bool VoxelOctreeNode::is_chunk(const JarVoxelTerrain &terrain) const
 {
     return _size == (LoD + terrain.get_min_chunk_size());
 }
@@ -393,7 +393,8 @@ void VoxelOctreeNode::get_voxel_leaves_in_bounds_excluding_bounds(const JarVoxel
         child->get_voxel_leaves_in_bounds_excluding_bounds(terrain, acceptance_bounds, rejection_bounds, LOD, result);
 }
 
-inline std::unique_ptr<VoxelOctreeNode> VoxelOctreeNode::create_child_node(const glm::vec3 &center, int size)
+std::unique_ptr<VoxelOctreeNode> VoxelOctreeNode::create_child_node(const glm::vec3 &center, int size)
 {
     return std::make_unique<VoxelOctreeNode>(this, center, size);
 }
+

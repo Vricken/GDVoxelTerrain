@@ -3,9 +3,11 @@
 
 #include "voxel_octree_node.h"
 #include <atomic>
-#include <concurrent_queue.h>
-#include <concurrent_priority_queue.h>
 #include <functional>
+#include <mutex>
+#include <queue>
+#include <utility>
+#include <vector>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 #include <thread>
@@ -15,6 +17,71 @@ using namespace godot;
 
 class JarVoxelTerrain;
 
+// ---------------------------------------------------------------------------
+// Cross-platform replacement for concurrency::concurrent_queue (MS PPL).
+// Wraps std::queue with a std::mutex and exposes the same push/try_pop/empty
+// interface that the original code relied on.
+// ---------------------------------------------------------------------------
+template <typename T>
+class ConcurrentQueue {
+public:
+    void push(const T &value) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _queue.push(value);
+    }
+
+    // Returns true and sets 'out' if the queue was non-empty; false otherwise.
+    bool try_pop(T &out) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        if (_queue.empty()) return false;
+        out = std::move(_queue.front());
+        _queue.pop();
+        return true;
+    }
+
+    bool empty() const {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return _queue.empty();
+    }
+
+private:
+    std::queue<T>       _queue;
+    mutable std::mutex  _mutex;
+};
+
+// ---------------------------------------------------------------------------
+// Cross-platform replacement for concurrency::concurrent_priority_queue.
+// Wraps std::priority_queue with a std::mutex and exposes the same
+// push/try_pop/empty interface.
+// ---------------------------------------------------------------------------
+template <typename T, typename Comparator = std::less<T>>
+class ConcurrentPriorityQueue {
+public:
+    void push(const T &value) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        _pq.push(value);
+    }
+
+    // Returns true and sets 'out' if the queue was non-empty; false otherwise.
+    bool try_pop(T &out) {
+        std::lock_guard<std::mutex> lock(_mutex);
+        if (_pq.empty()) return false;
+        out = _pq.top();
+        _pq.pop();
+        return true;
+    }
+
+    bool empty() const {
+        std::lock_guard<std::mutex> lock(_mutex);
+        return _pq.empty();
+    }
+
+private:
+    std::priority_queue<T, std::vector<T>, Comparator> _pq;
+    mutable std::mutex                                  _mutex;
+};
+
+// ---------------------------------------------------------------------------
 
 struct ChunkComparator {
     bool operator()(const VoxelOctreeNode *a, const VoxelOctreeNode *b) const {
@@ -25,8 +92,8 @@ struct ChunkComparator {
 class MeshComputeScheduler
 {
   private:
-    concurrency::concurrent_priority_queue<VoxelOctreeNode*, ChunkComparator> ChunksToAdd;
-    concurrency::concurrent_queue<std::pair<VoxelOctreeNode*, ChunkMeshData*>> ChunksToProcess;
+    ConcurrentPriorityQueue<VoxelOctreeNode*, ChunkComparator>          ChunksToAdd;
+    ConcurrentQueue<std::pair<VoxelOctreeNode*, ChunkMeshData*>>        ChunksToProcess;
 
     std::atomic<int> _activeTasks;
     int _maxConcurrentTasks;
