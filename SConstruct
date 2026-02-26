@@ -12,6 +12,7 @@ env.Append(CPPPATH=[
     "src/glm/",
     "src/utility/",
     "src/",
+    "src/concurrentqueue/",
     "src/sdf/",
     "src/voxel_terrain/",
     "src/voxel_terrain/meshing",
