@@ -8,9 +8,8 @@
 #include <functional>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/variant/vector3.hpp>
-// <mutex> removed — ConcurrentPriorityQueue replaced with plain
-// std::priority_queue
-#include <queue> // std::priority_queue (ChunksToAdd) + std::queue used by moodycamel internally
+#include <mutex>
+#include <queue> // std::priority_queue (ConcurrentPriorityQueue) + moodycamel internals
 #include <thread>
 #include <utility>
 #include <vector>
@@ -38,10 +37,40 @@ private:
   moodycamel::ConcurrentQueue<T> _q;
 };
 
-// ConcurrentPriorityQueue removed: both push (enqueue) and pop (process_queue)
-// are called from the same main/Godot thread, so no synchronisation is needed.
-// ChunksToAdd is now a plain std::priority_queue (see MeshComputeScheduler
-// below).
+// ---------------------------------------------------------------------------
+// ConcurrentPriorityQueue — mutex-wrapped std::priority_queue.
+// moodycamel has no lock-free priority-queue variant, so a mutex is used.
+// push() is called from the background build() thread;
+// try_pop() / empty() are called from the main thread in process_queue().
+// The mutex is therefore genuinely required here.
+// ---------------------------------------------------------------------------
+template <typename T, typename Comparator = std::less<T>>
+class ConcurrentPriorityQueue {
+public:
+  void push(const T &value) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _pq.push(value);
+  }
+
+  // Returns true and sets 'out' if the queue was non-empty; false otherwise.
+  bool try_pop(T &out) {
+    std::lock_guard<std::mutex> lock(_mutex);
+    if (_pq.empty())
+      return false;
+    out = _pq.top();
+    _pq.pop();
+    return true;
+  }
+
+  bool empty() const {
+    std::lock_guard<std::mutex> lock(_mutex);
+    return _pq.empty();
+  }
+
+private:
+  std::priority_queue<T, std::vector<T>, Comparator> _pq;
+  mutable std::mutex _mutex;
+};
 
 // ---------------------------------------------------------------------------
 
@@ -53,11 +82,9 @@ struct ChunkComparator {
 
 class MeshComputeScheduler {
 private:
-  // Single-threaded (main thread only) — plain priority_queue, no locking
-  // needed.
-  std::priority_queue<VoxelOctreeNode *, std::vector<VoxelOctreeNode *>,
-                      ChunkComparator>
-      ChunksToAdd;
+  // push() called from background build() thread; pop() from main thread.
+  // Mutex is genuinely required — see ConcurrentPriorityQueue above.
+  ConcurrentPriorityQueue<VoxelOctreeNode *, ChunkComparator> ChunksToAdd;
   ConcurrentQueue<std::pair<VoxelOctreeNode *, ChunkMeshData *>>
       ChunksToProcess;
 

@@ -29,11 +29,12 @@ void MeshComputeScheduler::process(JarVoxelTerrain &terrain) {
 }
 
 void MeshComputeScheduler::process_queue(JarVoxelTerrain &terrain) {
-  // ChunksToAdd is a plain std::priority_queue (main-thread only).
-  // top() + pop() replaces the old try_pop shim; empty() guards both calls.
-  while (!ChunksToAdd.empty()) {
-    VoxelOctreeNode *chunk = ChunksToAdd.top();
-    ChunksToAdd.pop();
+  // ChunksToAdd is a ConcurrentPriorityQueue: push() comes from the background
+  // build() thread, pop() from here on the main thread. try_pop() is the
+  // correct pattern — it atomically checks-and-pops under the mutex, avoiding a
+  // race between a separate empty() check and top()+pop().
+  VoxelOctreeNode *chunk;
+  while (ChunksToAdd.try_pop(chunk)) {
     run_task(terrain, *chunk);
   }
 }

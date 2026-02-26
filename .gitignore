@@ -52,3 +52,18 @@ Thumbs.db
 desktop.ini
 vc140.pdb
 src/**/*.obj
+
+# Ignore build files through the project
+build/
+*.os
+*.o
+*.obj
+*.bc
+*.pdb
+*.lib
+*.dll
+*.exe
+*.dylib
+*.so
+
+doc_data.gen.cpp
