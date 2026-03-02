@@ -36,17 +36,6 @@ void initialize_jar_voxel_terrain_module(ModuleInitializationLevel p_level)
 
         GDREGISTER_CLASS(JarSdfModification);
 
-        // Make sure enum constants are available during script parsing.  Binding
-        // them only in _bind_methods can sometimes be too late, causing GDScript
-        // to report missing members (see terrain_editor.gd errors).  To be safe
-        // we register them immediately when the module is initialized.
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_UNION", SDF_OPERATION_UNION);
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_SUBTRACTION", SDF_OPERATION_SUBTRACTION);
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_INTERSECTION", SDF_OPERATION_INTERSECTION);
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_SMOOTH_UNION", SDF_OPERATION_SMOOTH_UNION);
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_SMOOTH_SUBTRACTION", SDF_OPERATION_SMOOTH_SUBTRACTION);
-        ClassDB::add_integer_constant("JarSdfModification", "SDF_OPERATION_SMOOTH_INTERSECTION", SDF_OPERATION_SMOOTH_INTERSECTION);
-
         // WORLD
         GDREGISTER_ABSTRACT_CLASS(JarWorld);
         GDREGISTER_CLASS(JarPlanarWorld);
